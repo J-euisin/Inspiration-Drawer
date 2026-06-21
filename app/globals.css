@@ -1,0 +1,286 @@
+/* ─── Google Fonts: Korean Webfonts ─── */
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&family=Hi+Melody&family=Noto+Sans+KR:wght@300;400;500;600&display=swap");
+
+@import "tailwindcss";
+
+/* ─── Design Token ─── */
+:root {
+  --color-primary:    #6E6BA8;
+  --color-secondary:  #A7A3D8;
+  --color-accent:     #7E8CE0;
+  --color-bg:         #FAF8F5;
+  --color-text:       #2C314A;
+  --color-text-muted: #7a7f9a;
+  --color-surface:    #FFFFFF;
+  --color-border:     #E8E4F0;
+
+  --radius-card:   1rem;
+  --radius-btn:    9999px;
+  --radius-input:  0.75rem;
+  --radius-modal:  1.5rem;
+
+  --shadow-soft: 0 4px 24px rgba(110, 107, 168, 0.10);
+  --shadow-card: 0 2px 16px rgba(110, 107, 168, 0.12);
+  --shadow-hover: 0 8px 32px rgba(110, 107, 168, 0.18);
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── Card Font Classes ─── */
+.font-gothic      { font-family: 'Nanum Gothic', 'Noto Sans KR', sans-serif; }
+.font-myeongjo    { font-family: 'Gowun Batang', serif; }
+.font-cursive-card { font-family: 'Nanum Pen Script', cursive; }
+.font-handwriting  { font-family: 'Hi Melody', cursive; }
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: 9999px;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: var(--color-secondary);
+  color: white;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+.animate-fade-in    { animation: fadeIn 0.5s ease both; }
+.animate-scale-in   { animation: scaleIn 0.35s ease both; }
+.animate-float      { animation: float 4s ease-in-out infinite; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* Stagger children */
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
+
+/* ─── Component Patterns ─── */
+
+/* Primary button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 2px 12px rgba(110,107,168,0.25);
+  white-space: nowrap;
+}
+.btn-primary:hover {
+  background: #5b589a;
+  box-shadow: 0 4px 20px rgba(110,107,168,0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Accent button (소장하기) */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: 0 2px 12px rgba(126,140,224,0.28);
+  white-space: nowrap;
+}
+.btn-accent:hover {
+  background: #6b7dd4;
+  box-shadow: 0 4px 20px rgba(126,140,224,0.4);
+  transform: translateY(-1px);
+}
+.btn-accent:active { transform: translateY(0); }
+
+/* Ghost button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  background: transparent;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.btn-ghost:hover {
+  border-color: var(--color-secondary);
+  background: rgba(167,163,216,0.08);
+  transform: translateY(-1px);
+}
+
+/* Card surface */
+.card-surface {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.card-surface:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+/* Input */
+.input-base {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-input);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+.input-base::placeholder { color: var(--color-text-muted); }
+.input-base:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(167,163,216,0.18);
+}
+
+/* Genre chip */
+.genre-chip {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  background: rgba(110,107,168,0.1);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+/* Section label */
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  border: none;
+}
+
+/* Page fade wrapper */
+.page-wrapper {
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--color-text);
+  color: #fff;
+  padding: 0.7rem 1.4rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(44,49,74,0.25);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease both;
+  pointer-events: none;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(44,49,74,0.35);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.25s ease both;
+}
