@@ -1,7 +1,13 @@
+"use client"
+import mixpanel from 'mixpanel-browser';
 import Link from 'next/link';
 import { getDailyQuote } from '@/lib/quotes';
 import DailyQuoteCard from '@/components/DailyQuoteCard';
 
+// 초기화 코드는 import들 바로 아래에 둡니다.
+if (typeof window !== 'undefined') {
+  mixpanel.init('0b1dd49538bf87bbb8b09c557d21680e', { track_pageview: true });
+}
 export default function HomePage() {
   const quote = getDailyQuote();
 
