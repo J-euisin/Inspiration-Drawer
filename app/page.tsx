@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import mixpanel from 'mixpanel-browser';
 import { getDailyQuote } from '@/lib/quotes';
 import DailyQuoteCard from '@/components/DailyQuoteCard';
+import SkyBackground from '@/components/SkyBackground';
 import { Thought } from '@/lib/types';
 import {
   getThoughts,
@@ -31,6 +32,8 @@ export default function HomePage() {
   const quote = getDailyQuote();
   const router = useRouter();
 
+  // 개발용 시간 오버라이드 (SkyBackground 토글과 공유)
+  const [devHour, setDevHour] = useState<number | null>(null);
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [inputText, setInputText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -87,8 +90,14 @@ export default function HomePage() {
 
   return (
     <div className="page-wrapper">
+      {/* 하늘 배경 — 현재 시각 기반 */}
+      <SkyBackground devHour={devHour} setDevHour={setDevHour} />
+
+      {/* 콘텐츠 레이어 — 배경 위에 돌출 */}
       <div
         style={{
+          position: 'relative',
+          zIndex: 1,
           maxWidth: '680px',
           margin: '0 auto',
           padding: '1.25rem 1.25rem 6rem',
@@ -96,19 +105,7 @@ export default function HomePage() {
       >
         {/* Daily quote section */}
         <section style={{ marginBottom: '1.25rem' }}>
-          {/* 섹션 라벨 — 단상 라벨과 동일 스타일 */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              marginBottom: '0.9rem',
-            }}
-          >
-            <span style={{ fontSize: '1.1rem' }}>✦</span>
-            <p className="section-label">오늘의 문장</p>
-          </div>
-          <DailyQuoteCard quote={quote} />
+          <DailyQuoteCard quote={quote} devHour={devHour} />
         </section>
 
         {/* ── Thought input section ── */}
@@ -116,14 +113,19 @@ export default function HomePage() {
           {/* Section header */}
           <div
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.6rem',
               marginBottom: '0.9rem',
+              padding: '0.25rem 0.75rem 0.25rem 0.4rem',
+              background: 'rgba(250,248,245,0.18)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              borderRadius: '9999px',
             }}
           >
             <span style={{ fontSize: '1.1rem' }}>💭</span>
-            <p className="section-label">오늘의 단상</p>
+            <p className="section-label" style={{ color: 'var(--color-text)' }}>오늘의 단상</p>
           </div>
 
           {/* Input area */}
