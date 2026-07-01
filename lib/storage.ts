@@ -1,26 +1,41 @@
-import { Card } from './types';
+import { Card, Thought } from './types';
 
-const STORAGE_KEY = 'inspiration-drawer-cards';
+/* ─── Cards ─── */
+
+const CARDS_KEY = 'inspiration-drawer-cards';
 
 export function getCards(): Card[] {
   if (typeof window === 'undefined') return [];
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    const data = localStorage.getItem(CARDS_KEY);
+    const cards: Card[] = data ? JSON.parse(data) : [];
+    // 하위호환: type 필드가 없는 기존 데이터는 'quote'로 처리
+    return cards.map((c) => ({ ...c, type: c.type ?? 'quote' }));
   } catch {
     return [];
   }
 }
 
 export function saveCard(card: Card): void {
-  const cards = getCards();
-  cards.unshift(card);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  const raw = getRawCards();
+  raw.unshift(card);
+  localStorage.setItem(CARDS_KEY, JSON.stringify(raw));
 }
 
 export function deleteCard(id: string): void {
-  const cards = getCards().filter((c) => c.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  const raw = getRawCards().filter((c) => c.id !== id);
+  localStorage.setItem(CARDS_KEY, JSON.stringify(raw));
+}
+
+/** 원본 데이터 그대로 읽기 (저장 시 기존 데이터 보존용) */
+function getRawCards(): Card[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const data = localStorage.getItem(CARDS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function groupCardsByDate(cards: Card[]): { date: string; cards: Card[] }[] {
@@ -46,4 +61,43 @@ export function groupCardsByDate(cards: Card[]): { date: string; cards: Card[] }
 
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/* ─── Thoughts ─── */
+
+const THOUGHTS_KEY = 'inspiration-drawer-thoughts';
+
+export function getThoughts(): Thought[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const data = localStorage.getItem(THOUGHTS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveThought(thought: Thought): void {
+  const thoughts = getThoughts();
+  thoughts.unshift(thought);
+  localStorage.setItem(THOUGHTS_KEY, JSON.stringify(thoughts));
+}
+
+export function updateThought(id: string, text: string): void {
+  const thoughts = getThoughts().map((t) =>
+    t.id === id ? { ...t, text, updatedAt: new Date().toISOString() } : t
+  );
+  localStorage.setItem(THOUGHTS_KEY, JSON.stringify(thoughts));
+}
+
+export function deleteThought(id: string): void {
+  const thoughts = getThoughts().filter((t) => t.id !== id);
+  localStorage.setItem(THOUGHTS_KEY, JSON.stringify(thoughts));
+}
+
+export function markThoughtConverted(id: string): void {
+  const thoughts = getThoughts().map((t) =>
+    t.id === id ? { ...t, convertedToCard: true } : t
+  );
+  localStorage.setItem(THOUGHTS_KEY, JSON.stringify(thoughts));
 }

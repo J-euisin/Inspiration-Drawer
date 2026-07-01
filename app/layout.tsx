@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navigation from '@/components/Navigation';
+import ClientShell from '@/components/ClientShell';
 
 export const metadata: Metadata = {
   title: '영감의 서랍 — 나만의 문장 아카이브',
@@ -23,8 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <Navigation />
-        <main>{children}</main>
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );

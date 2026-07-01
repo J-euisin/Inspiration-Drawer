@@ -23,6 +23,12 @@ export interface Card {
   source?: string;
   author?: string;
   createdAt: string; // ISO string
+  /**
+   * 'quote' = 책·영화·명언 등에서 수집한 문장 (출처/저자 있음)
+   * 'thought' = 떠오르는 단상 (출처/저자 없음)
+   * undefined = 기존 데이터 → 'quote' 로 처리
+   */
+  type?: 'quote' | 'thought';
 }
 
 export interface DailyQuote {
@@ -31,4 +37,13 @@ export interface DailyQuote {
   source: string;
   author?: string;
   genre: '소설' | '시' | '영화' | '에세이' | '명언' | '칼럼';
+}
+
+/** 단상: 짧은 일기처럼 떠오르는 생각을 가볍게 적는 메모 */
+export interface Thought {
+  id: string;
+  text: string;
+  createdAt: string;  // ISO string
+  updatedAt?: string; // 수정 시 갱신
+  convertedToCard?: boolean; // 카드로 만든 경우 true
 }

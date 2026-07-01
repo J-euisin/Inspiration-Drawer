@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FontStyle, FONT_LABELS, FONT_CLASSNAMES } from '@/lib/types';
 import { saveCard, generateId } from '@/lib/storage';
 import CardPreview from '@/components/CardPreview';
+import { useNavigationGuard } from '@/lib/navigation-guard-context';
 
 /* ── Preset background colors ── */
 const BG_COLORS = [
@@ -29,10 +30,19 @@ const FONTS: { value: FontStyle; preview: string }[] = [
   { value: 'handwriting', preview: '손글씨 — 따뜻하고 정겨운' },
 ];
 
-export default function CreatePage() {
-  const router = useRouter();
+type CardMode = 'quote' | 'thought';
 
-  const [text, setText] = useState('');
+function CreatePageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { setDirty } = useNavigationGuard();
+
+  // URL 파라미터로 전달된 값 읽기
+  const paramText = searchParams.get('text') ?? '';
+  const paramMode = searchParams.get('mode') === 'thought' ? 'thought' : null;
+
+  const [mode, setMode] = useState<CardMode>(paramMode ?? 'quote');
+  const [text, setText] = useState(paramText);
   const [source, setSource] = useState('');
   const [author, setAuthor] = useState('');
   const [fontStyle, setFontStyle] = useState<FontStyle>('myeongjo');
@@ -44,6 +54,39 @@ export default function CreatePage() {
   const [tab, setTab] = useState<'color' | 'image'>('color');
 
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Dirty 상태 계산 및 컨텍스트 등록 ──
+  const isDirty = text.trim() !== '' || source.trim() !== '' || author.trim() !== '';
+
+  useEffect(() => {
+    setDirty(isDirty);
+    // 컴포넌트 언마운트 시 dirty 해제
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
+
+  // ── 브라우저 새로고침 / 탭 닫기 대응 ──
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+
+  // 단상 모드일 때 배경 기본값 약간 다르게
+  useEffect(() => {
+    if (mode === 'thought') {
+      setBgColor('#F5F0FF');
+    } else {
+      setBgColor('#EEE8F8');
+    }
+    // 모드 전환 시 출처/저자 초기화
+    setSource('');
+    setAuthor('');
+  }, [mode]);
 
   /* ── Handlers ── */
   const showToast = (msg: string) => {
@@ -62,18 +105,24 @@ export default function CreatePage() {
   }, []);
 
   const handleSave = async () => {
-    if (!text.trim()) { showToast('문장을 입력해주세요.'); return; }
+    if (!text.trim()) {
+      showToast(mode === 'thought' ? '단상을 입력해주세요.' : '문장을 입력해주세요.');
+      return;
+    }
     setSaving(true);
     await new Promise((r) => setTimeout(r, 350));
+    // 저장 성공 → dirty 해제 후 이동 (guard 팝업 없이)
+    setDirty(false);
     saveCard({
       id: generateId(),
       text: text.trim(),
       fontStyle,
       backgroundColor: bgColor,
       backgroundImage: bgImage,
-      source: source.trim() || undefined,
-      author: author.trim() || undefined,
+      source: mode === 'quote' ? (source.trim() || undefined) : undefined,
+      author: mode === 'quote' ? (author.trim() || undefined) : undefined,
       createdAt: new Date().toISOString(),
+      type: mode,
     });
     setSaving(false);
     router.push('/archive');
@@ -91,7 +140,7 @@ export default function CreatePage() {
 
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
         {/* Page header */}
-        <div className="animate-fade-in" style={{ marginBottom: '2rem' }}>
+        <div className="animate-fade-in" style={{ marginBottom: '1.5rem' }}>
           <h1
             style={{
               fontFamily: "'Gowun Batang', serif",
@@ -104,8 +153,52 @@ export default function CreatePage() {
             ✎ 카드 만들기
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem' }}>
-            문장을 입력하고, 나만의 감성으로 카드를 완성하세요.
+            {mode === 'thought'
+              ? '단상을 담아 나만의 감성 카드로 만들어보세요.'
+              : '문장을 입력하고, 나만의 감성으로 카드를 완성하세요.'}
           </p>
+        </div>
+
+        {/* ── Mode toggle ── */}
+        <div
+          className="animate-fade-in"
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '1.75rem',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '9999px',
+            padding: '0.3rem',
+            width: 'fit-content',
+            boxShadow: 'var(--shadow-soft)',
+          }}
+        >
+          {([
+            { value: 'thought' as CardMode, label: '💭 단상 기록하기' },
+            { value: 'quote'   as CardMode, label: '📖 문장 수집하기' },
+          ] as { value: CardMode; label: string }[]).map((item) => (
+            <button
+              key={item.value}
+              id={`mode-${item.value}`}
+              onClick={() => setMode(item.value)}
+              style={{
+                padding: '0.5rem 1.2rem',
+                borderRadius: '9999px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: mode === item.value ? 700 : 400,
+                background: mode === item.value ? 'var(--color-primary)' : 'transparent',
+                color: mode === item.value ? '#fff' : 'var(--color-text-muted)',
+                transition: 'all 0.2s',
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         {/* Two-column layout */}
@@ -142,14 +235,18 @@ export default function CreatePage() {
                 className="section-label"
                 style={{ display: 'block', marginBottom: '0.65rem' }}
               >
-                문장 입력
+                {mode === 'thought' ? '단상 입력' : '문장 입력'}
               </label>
               <textarea
                 id="card-text"
                 className="input-base"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="기억하고 싶은 문장을 적어보세요…"
+                placeholder={
+                  mode === 'thought'
+                    ? '지금 이 순간 떠오르는 생각을 적어보세요…'
+                    : '기억하고 싶은 문장을 적어보세요…'
+                }
                 maxLength={200}
                 style={{ minHeight: '110px', fontFamily: FONT_CLASSNAMES[fontStyle] }}
               />
@@ -173,35 +270,54 @@ export default function CreatePage() {
                 </span>
               </div>
 
-              {/* Source & Author */}
-              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.9rem' }}>
-                <div style={{ flex: 1 }}>
-                  <label className="section-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
-                    출처
-                  </label>
-                  <input
-                    id="card-source"
-                    className="input-base"
-                    style={{ resize: 'none' }}
-                    value={source}
-                    onChange={(e) => setSource(e.target.value)}
-                    placeholder="책 / 영화 / 시 이름"
-                  />
+              {/* Source & Author — 문장 모드일 때만 표시 */}
+              {mode === 'quote' && (
+                <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.9rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="section-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
+                      출처
+                    </label>
+                    <input
+                      id="card-source"
+                      className="input-base"
+                      style={{ resize: 'none' }}
+                      value={source}
+                      onChange={(e) => setSource(e.target.value)}
+                      placeholder="책 / 영화 / 시 이름"
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label className="section-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
+                      저자
+                    </label>
+                    <input
+                      id="card-author"
+                      className="input-base"
+                      style={{ resize: 'none' }}
+                      value={author}
+                      onChange={(e) => setAuthor(e.target.value)}
+                      placeholder="작가 / 인물 이름"
+                    />
+                  </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label className="section-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
-                    저자
-                  </label>
-                  <input
-                    id="card-author"
-                    className="input-base"
-                    style={{ resize: 'none' }}
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="작가 / 인물 이름"
-                  />
-                </div>
-              </div>
+              )}
+
+              {/* 단상 모드 안내 */}
+              {mode === 'thought' && (
+                <p
+                  style={{
+                    marginTop: '0.75rem',
+                    fontSize: '0.75rem',
+                    color: 'var(--color-text-muted)',
+                    lineHeight: 1.6,
+                    padding: '0.5rem 0.75rem',
+                    background: 'rgba(110,107,168,0.05)',
+                    borderRadius: '0.625rem',
+                  }}
+                >
+                  💭 단상은 출처·저자 없이 나의 생각을 그대로 담습니다.
+                </p>
+              )}
             </section>
 
             {/* Font selector */}
@@ -491,8 +607,8 @@ export default function CreatePage() {
                 fontStyle={fontStyle}
                 backgroundColor={bgColor}
                 backgroundImage={bgImage}
-                source={source}
-                author={author}
+                source={mode === 'quote' ? source : undefined}
+                author={mode === 'quote' ? author : undefined}
                 size="full"
               />
             </div>
@@ -522,5 +638,14 @@ export default function CreatePage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// useSearchParams needs Suspense boundary
+export default function CreatePage() {
+  return (
+    <Suspense fallback={<div className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><span style={{ color: 'var(--color-text-muted)' }}>불러오는 중…</span></div>}>
+      <CreatePageInner />
+    </Suspense>
   );
 }
