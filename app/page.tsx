@@ -108,7 +108,7 @@ export default function HomePage() {
           zIndex: 0,
           pointerEvents: 'none',
           background:
-            'radial-gradient(ellipse 80% 50% at 50% 38%, rgba(167,163,216,0.35) 0%, rgba(110,107,168,0.14) 40%, rgba(126,140,224,0.06) 62%, transparent 78%)',
+            'radial-gradient(ellipse 80% 50% at 50% 38%, hsla(245, 47%, 74%, 0.35) 0%, hsla(242, 46%, 54%, 0.14) 40%, hsla(231, 80%, 69%, 0.06) 62%, transparent 78%)',
           filter: 'blur(2px)',
         }}
       />

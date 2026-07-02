@@ -11,25 +11,32 @@ interface DailyQuoteCardProps {
 const GENRE_COLORS: Record<string, string> = {
   소설: '#6E6BA8', 시: '#7E79C0', 영화: '#7E8CE0',
   에세이: '#9B8EC4', 명언: '#8B7EC8', 칼럼: '#7A8BC0',
+  일기집: '#9B8EC4', 회고록: '#9B8EC4', 인문철학: '#7E79C0',
+  어록: '#8B7EC8', 철학: '#7E79C0',
 };
 
 function calcCountdown(): { h: number; m: number } {
-  const midnight = new Date();
-  midnight.setHours(24, 0, 0, 0);
-  const ms = midnight.getTime() - Date.now();
+  const now = new Date();
+  // 사용자의 로컬 시간대 기준으로 내일 0시 0분 0초 설정
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  const ms = midnight.getTime() - now.getTime();
+  const safeMs = Math.max(0, ms);
   return {
-    h: Math.floor(ms / (1000 * 60 * 60)),
-    m: Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)),
+    h: Math.floor(safeMs / (1000 * 60 * 60)),
+    m: Math.floor((safeMs % (1000 * 60 * 60)) / (1000 * 60)),
   };
 }
 
 export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
   const [saved,     setSaved]     = useState(false);
   const [saving,    setSaving]    = useState(false);
-  const [countdown, setCountdown] = useState(calcCountdown);
+  const [mounted,   setMounted]   = useState(false);
+  const [countdown, setCountdown] = useState({ h: 0, m: 0 });
 
-  // 1분마다 카운트다운 갱신
+  // 클라이언트 마운트 이후에만 실제 남은 시간을 계산하여 Hydration Mismatch 방지
   useEffect(() => {
+    setMounted(true);
+    setCountdown(calcCountdown());
     const id = setInterval(() => setCountdown(calcCountdown()), 60_000);
     return () => clearInterval(id);
   }, []);
@@ -146,7 +153,7 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
         <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
           이 문장을 담을 수 있는 시간{' '}
           <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
-            {pad(countdown.h)}시간 {pad(countdown.m)}분
+            {mounted ? `${pad(countdown.h)}시간 ${pad(countdown.m)}분` : '--시간 --분'}
           </span>
           {' '}남음
         </p>

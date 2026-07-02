@@ -36,7 +36,7 @@ export interface DailyQuote {
   text: string;
   source: string;
   author?: string;
-  genre: '소설' | '시' | '영화' | '에세이' | '명언' | '칼럼';
+  genre: '소설' | '시' | '영화' | '에세이' | '명언' | '칼럼' | '일기집' | '회고록' | '인문철학' | '어록' | '철학';
 }
 
 /** 단상: 짧은 일기처럼 떠오르는 생각을 가볍게 적는 메모 */
