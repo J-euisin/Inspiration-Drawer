@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import mixpanel from 'mixpanel-browser';
 import { getDailyQuote } from '@/lib/quotes';
 import DailyQuoteCard from '@/components/DailyQuoteCard';
-import SkyBackground from '@/components/SkyBackground';
 import { Thought } from '@/lib/types';
 import {
   getThoughts,
@@ -32,17 +31,25 @@ export default function HomePage() {
   const quote = getDailyQuote();
   const router = useRouter();
 
-  // 개발용 시간 오버라이드 (SkyBackground 토글과 공유)
-  const [devHour, setDevHour] = useState<number | null>(null);
-  const [thoughts, setThoughts] = useState<Thought[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText, setEditText] = useState('');
-  const listRef = useRef<HTMLDivElement>(null);
+  const [thoughts,   setThoughts]   = useState<Thought[]>([]);
+  const [inputText,  setInputText]  = useState('');
+  const [editingId,  setEditingId]  = useState<string | null>(null);
+  const [editText,   setEditText]   = useState('');
+  const [focused,    setFocused]    = useState(false);
+  const listRef     = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setThoughts(getThoughts());
   }, []);
+
+  // 텍스트 입력 + 자동 높이 조절
+  function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setInputText(e.target.value);
+    const el = e.target;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+  }
 
   function handleAdd() {
     const trimmed = inputText.trim();
@@ -55,7 +62,8 @@ export default function HomePage() {
     saveThought(thought);
     setThoughts(getThoughts());
     setInputText('');
-    // 목록 맨 위로 스크롤
+    // 텍스트에리어 높이 초기화
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setTimeout(() => {
       if (listRef.current) listRef.current.scrollTop = 0;
     }, 50);
@@ -90,113 +98,160 @@ export default function HomePage() {
 
   return (
     <div className="page-wrapper">
-      {/* 하늘 배경 — 현재 시각 기반 */}
-      <SkyBackground devHour={devHour} setDevHour={setDevHour} />
+      {/* ── 배경 보라 그라데이션 오버레이 (Gemini 스타일, CSS-only) ── */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          background:
+            'radial-gradient(ellipse 80% 50% at 50% 38%, rgba(167,163,216,0.35) 0%, rgba(110,107,168,0.14) 40%, rgba(126,140,224,0.06) 62%, transparent 78%)',
+          filter: 'blur(2px)',
+        }}
+      />
 
-      {/* 콘텐츠 레이어 — 배경 위에 돌출 */}
       <div
         style={{
           position: 'relative',
           zIndex: 1,
           maxWidth: '680px',
           margin: '0 auto',
-          padding: '1.25rem 1.25rem 6rem',
+          padding: '0 1.25rem 2.5rem',
         }}
       >
-        {/* Daily quote section */}
-        <section style={{ marginBottom: '1.25rem' }}>
-          <DailyQuoteCard quote={quote} devHour={devHour} />
-        </section>
-
-        {/* ── Thought input section ── */}
-        <section className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
-          {/* Section header */}
-          <div
+        {/* ── 히어로 인사 영역 ── */}
+        <section
+          style={{
+            textAlign: 'center',
+            padding: '5rem 1rem 2.25rem',
+          }}
+        >
+          {/* 메인 타이틀 — Gowun Dodum */}
+          <h1
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.6rem',
-              marginBottom: '0.9rem',
-              padding: '0.25rem 0.75rem 0.25rem 0.4rem',
-              background: 'rgba(250,248,245,0.18)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              borderRadius: '9999px',
+              fontFamily: "'Gowun Dodum', sans-serif",
+              fontSize: 'clamp(1.45rem, 3.5vw, 2rem)',
+              fontWeight: 400,
+              color: 'var(--color-text)',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.4,
+              marginBottom: '1rem',
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>💭</span>
-            <p className="section-label" style={{ color: 'var(--color-text)' }}>오늘의 단상</p>
-          </div>
+            지금, 서랍에 간직하고 싶은 생각이 있나요?
+          </h1>
 
-          {/* Input area */}
+          {/* 설명 — 한 줄 */}
+          <p
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.75,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            매일의 작은 생각과 기록이 축적되다 보면, 어느날 반짝이는 영감이 가까이 와있을 거에요.
+          </p>
+        </section>
+
+        {/* ── 단상 입력 (pill 형태) ── */}
+        <section
+          className="animate-fade-in"
+          style={{ marginBottom: '1.5rem', animationDelay: '0.1s' }}
+        >
           <div
             style={{
+              display: 'flex',
+              alignItems: 'center',
               background: 'var(--color-surface)',
-              borderRadius: '1.25rem',
-              border: '1px solid var(--color-border)',
-              boxShadow: 'var(--shadow-card)',
-              overflow: 'hidden',
+              border: `1.5px solid ${focused ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              borderRadius: '9999px',
+              padding: '0.65rem 0.65rem 0.65rem 1.5rem',
+              boxShadow: focused
+                ? '0 0 0 3px rgba(110,107,168,0.12), 0 4px 24px rgba(110,107,168,0.1)'
+                : '0 2px 16px rgba(110,107,168,0.09)',
+              gap: '0.65rem',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
             }}
           >
             <textarea
               id="thought-input"
-              className="input-base"
+              ref={textareaRef}
+              rows={1}
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={handleInput}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAdd();
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAdd();
+                }
+                // Shift+Enter → 줄바꿈 (기본 동작)
               }}
-              placeholder="지금 이 순간 떠오르는 생각을 적어보세요… (Cmd+Enter로 기록)"
-              maxLength={300}
+              placeholder="떠오르는 생각을 적고 Enter를 눌러보세요"
               style={{
+                flex: 1,
                 border: 'none',
-                boxShadow: 'none',
-                borderRadius: '1.25rem 1.25rem 0 0',
-                minHeight: '80px',
+                outline: 'none',
+                background: 'transparent',
                 resize: 'none',
+                fontFamily: 'inherit',
+                fontSize: '0.95rem',
+                color: 'var(--color-text)',
+                lineHeight: 1.6,
+                maxHeight: '128px',
+                overflowY: 'auto',
+                padding: '0.15rem 0',
               }}
             />
+
+            {/* 글자 수 + 기록하기 버튼 */}
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '0.6rem 1rem',
-                borderTop: '1px solid var(--color-border)',
-                background: 'rgba(110,107,168,0.03)',
+                gap: '0.5rem',
+                flexShrink: 0,
               }}
             >
-              <span style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
-                {inputText.length} / 300
-              </span>
               <button
                 id="thought-submit-btn"
-                className="btn-primary"
+                className="btn-accent"
                 onClick={handleAdd}
                 disabled={!inputText.trim()}
                 style={{
-                  fontSize: '0.82rem',
+                  borderRadius: '9999px',
                   padding: '0.45rem 1.1rem',
-                  opacity: !inputText.trim() ? 0.5 : 1,
+                  fontSize: '0.84rem',
+                  opacity: !inputText.trim() ? 0.45 : 1,
+                  transition: 'opacity 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 기록하기
               </button>
             </div>
           </div>
+        </section>
 
-          {/* Thought list — fixed height, scrollable */}
-          {thoughts.length > 0 && (
+        {/* ── 기록된 단상 목록 ── */}
+        {thoughts.length > 0 && (
+          <section
+            style={{ marginBottom: '1.5rem' }}
+            className="animate-fade-in"
+          >
             <div
               ref={listRef}
               style={{
-                marginTop: '0.75rem',
                 maxHeight: '320px',
                 overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '0.6rem',
-                paddingRight: '2px', // scrollbar 공간
+                paddingRight: '2px',
               }}
             >
               {thoughts.map((t) => (
@@ -263,12 +318,7 @@ export default function HomePage() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span
-                          style={{
-                            fontSize: '0.7rem',
-                            color: 'var(--color-text-muted)',
-                          }}
-                        >
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
                           {formatDateTime(t.updatedAt ?? t.createdAt)}
                           {t.updatedAt && ' (수정됨)'}
                         </span>
@@ -347,22 +397,42 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          )}
+          </section>
+        )}
 
-          {thoughts.length === 0 && (
-            <p
-              style={{
-                marginTop: '0.75rem',
-                fontSize: '0.8rem',
-                color: 'var(--color-text-muted)',
-                textAlign: 'center',
-                padding: '1rem',
-              }}
-            >
-              아직 기록된 단상이 없어요. 오늘의 생각을 남겨보세요 🌱
-            </p>
-          )}
+        {/* 빈 상태 */}
+        {thoughts.length === 0 && (
+          <p
+            style={{
+              marginBottom: '1.5rem',
+              fontSize: '0.8rem',
+              color: 'var(--color-text-muted)',
+              textAlign: 'center',
+              padding: '0.75rem 1rem',
+            }}
+          >
+            아직 기록된 단상이 없어요. 오늘의 생각을 남겨보세요 🌱
+          </p>
+        )}
+
+        {/* ── 오늘의 문장 배너 (하단) ── */}
+        <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <DailyQuoteCard quote={quote} />
         </section>
+
+        {/* ── 영감 정의 (맨 아래) ── */}
+        <p
+          style={{
+            marginTop: '1.25rem',
+            fontSize: '0.75rem',
+            color: 'var(--color-text-muted)',
+            textAlign: 'center',
+            letterSpacing: '0.02em',
+            opacity: 0.7,
+          }}
+        >
+          영감 靈感 : 창조적인 일의 계기가 되는 기발한 착상이나 자극.
+        </p>
       </div>
     </div>
   );
