@@ -38,6 +38,7 @@ export default function HomePage() {
   const [focused,    setFocused]    = useState(false);
   const listRef     = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isComposing = useRef(false);
 
   useEffect(() => {
     setThoughts(getThoughts());
@@ -182,11 +183,22 @@ export default function HomePage() {
               rows={1}
               value={inputText}
               onChange={handleInput}
+              onCompositionStart={() => {
+                isComposing.current = true;
+              }}
+              onCompositionEnd={() => {
+                // 이벤트 루프의 다음 틱으로 넘겨서 
+                // 직후 발생하는 keydown 이벤트까지 안전하게 무시되도록 함
+                setTimeout(() => {
+                  isComposing.current = false;
+                }, 0);
+              }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
+                  if (e.nativeEvent.isComposing || isComposing.current) return;
                   handleAdd();
                 }
                 // Shift+Enter → 줄바꿈 (기본 동작)
