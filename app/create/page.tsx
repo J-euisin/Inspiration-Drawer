@@ -41,7 +41,7 @@ function CreatePageInner() {
   const paramText = searchParams.get('text') ?? '';
   const paramMode = searchParams.get('mode') === 'thought' ? 'thought' : null;
 
-  const [mode, setMode] = useState<CardMode>(paramMode ?? 'quote');
+  const [mode, setMode] = useState<CardMode>(paramMode ?? 'thought');
   const [text, setText] = useState(paramText);
   const [source, setSource] = useState('');
   const [author, setAuthor] = useState('');
@@ -142,15 +142,16 @@ function CreatePageInner() {
         {/* Page header */}
         <div className="animate-fade-in" style={{ marginBottom: '1.5rem' }}>
           <h1
+            className="max-md:mt-[40px]"
             style={{
-              fontFamily: "'Gowun Batang', serif",
+              fontFamily: "'Gowun Dodum', sans-serif",
               fontSize: 'clamp(1.4rem, 4vw, 1.9rem)',
               fontWeight: 700,
               color: 'var(--color-text)',
               marginBottom: '0.35rem',
             }}
           >
-            ✎ 카드 만들기
+            카드 만들기
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem' }}>
             {mode === 'thought'

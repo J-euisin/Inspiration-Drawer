@@ -250,7 +250,12 @@ body {
 /* Page fade wrapper */
 .page-wrapper {
   min-height: 100vh;
-  padding-bottom: 5rem;
+  padding-bottom: 7rem; /* 모바일 하단 탭 여백 기본값 */
+}
+@media (min-width: 768px) {
+  .page-wrapper {
+    padding-bottom: 5rem; /* 데스크탑 여백 */
+  }
 }
 
 /* Toast */

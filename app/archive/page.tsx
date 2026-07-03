@@ -54,15 +54,16 @@ export default function ArchivePage() {
           >
             <div>
               <h1
+                className="max-md:mt-[40px]"
                 style={{
-                  fontFamily: "'Gowun Batang', serif",
+                  fontFamily: "'Gowun Dodum', sans-serif",
                   fontSize: 'clamp(1.4rem, 4vw, 1.9rem)',
                   fontWeight: 700,
                   color: 'var(--color-text)',
                   marginBottom: '0.3rem',
                 }}
               >
-                ⊞ 나의 서랍
+                나의 서랍
               </h1>
               {loaded && (
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem' }}>

@@ -36,12 +36,17 @@ export default function HomePage() {
   const [editingId,  setEditingId]  = useState<string | null>(null);
   const [editText,   setEditText]   = useState('');
   const [focused,    setFocused]    = useState(false);
+  const [isMobile,   setIsMobile]   = useState(false);
   const listRef     = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isComposing = useRef(false);
 
   useEffect(() => {
     setThoughts(getThoughts());
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // 텍스트 입력 + 자동 높이 조절
@@ -98,7 +103,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
       {/* ── 배경 보라 그라데이션 오버레이 (Gemini 스타일, CSS-only) ── */}
       <div
         aria-hidden
@@ -114,12 +119,17 @@ export default function HomePage() {
       />
 
       <div
+        className="max-md:px-[20px] md:px-5 pb-[7rem] md:pb-10"
         style={{
           position: 'relative',
           zIndex: 1,
+          width: '100%',
           maxWidth: '680px',
           margin: '0 auto',
-          padding: '0 1.25rem 2.5rem',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
         }}
       >
         {/* ── 히어로 인사 영역 ── */}
@@ -131,29 +141,27 @@ export default function HomePage() {
         >
           {/* 메인 타이틀 — Gowun Dodum */}
           <h1
+            className="text-[1.4rem] md:text-[2rem] leading-snug mb-8"
             style={{
               fontFamily: "'Gowun Dodum', sans-serif",
-              fontSize: 'clamp(1.45rem, 3.5vw, 2rem)',
               fontWeight: 400,
               color: 'var(--color-text)',
               letterSpacing: '-0.01em',
-              lineHeight: 1.4,
-              marginBottom: '1rem',
             }}
           >
-            지금, 서랍에 간직하고 싶은 생각이 있나요?
+            지금, 서랍에 간직하고 싶은<br className="md:hidden" /> 생각이 있나요?
           </h1>
 
           {/* 설명 — 한 줄 */}
           <p
+            className="whitespace-normal break-keep md:whitespace-nowrap"
             style={{
               fontSize: '0.8rem',
               color: 'var(--color-text-muted)',
               lineHeight: 1.75,
-              whiteSpace: 'nowrap',
             }}
           >
-            매일의 작은 생각과 기록이 축적되다 보면, 어느날 반짝이는 영감이 가까이 와있을 거에요.
+            매일의 작은 생각과 기록이 축적되다 보면,<br className="md:hidden" /> 어느날 반짝이는 영감이 가까이 와있을 거에요.
           </p>
         </section>
 
@@ -167,14 +175,14 @@ export default function HomePage() {
               display: 'flex',
               alignItems: 'center',
               background: 'var(--color-surface)',
-              border: `1.5px solid ${focused ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              border: 'none',
               borderRadius: '9999px',
               padding: '0.65rem 0.65rem 0.65rem 1.5rem',
               boxShadow: focused
-                ? '0 0 0 3px rgba(110,107,168,0.12), 0 4px 24px rgba(110,107,168,0.1)'
-                : '0 2px 16px rgba(110,107,168,0.09)',
+                ? '0 4px 20px rgba(0, 0, 0, 0.18)'
+                : '0 2px 10px rgba(0, 0, 0, 0.12)',
               gap: '0.65rem',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
+              transition: 'box-shadow 0.2s',
             }}
           >
             <textarea
@@ -203,7 +211,11 @@ export default function HomePage() {
                 }
                 // Shift+Enter → 줄바꿈 (기본 동작)
               }}
-              placeholder="떠오르는 생각을 적고 Enter를 눌러보세요"
+              placeholder={
+                isMobile
+                  ? "아주 사소한 것이라도 좋아요."
+                  : "떠오르는 생각을 적어보세요. 아주 사소한 것이라도 좋아요."
+              }
               style={{
                 flex: 1,
                 border: 'none',
@@ -233,12 +245,10 @@ export default function HomePage() {
                 id="thought-submit-btn"
                 className="btn-accent"
                 onClick={handleAdd}
-                disabled={!inputText.trim()}
                 style={{
                   borderRadius: '9999px',
                   padding: '0.45rem 1.1rem',
                   fontSize: '0.84rem',
-                  opacity: !inputText.trim() ? 0.45 : 1,
                   transition: 'opacity 0.2s',
                   whiteSpace: 'nowrap',
                 }}

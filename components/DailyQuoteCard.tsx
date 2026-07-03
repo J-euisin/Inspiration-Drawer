@@ -145,6 +145,7 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '1rem',
+          flexWrap: 'wrap',
           paddingTop: '0.5rem',
           borderTop: '1px solid var(--color-border)',
           marginTop: '0.05rem',
