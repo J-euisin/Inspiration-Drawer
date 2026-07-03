@@ -131,7 +131,7 @@ export default function CardPreview({
         >
           {text || (
             <span style={{ opacity: 0.35 }}>
-              여기에 문장을 입력하세요
+              여기에 문장이 입력됩니다
             </span>
           )}
         </p>

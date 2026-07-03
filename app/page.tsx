@@ -119,13 +119,14 @@ export default function HomePage() {
       />
 
       <div
-        className="max-md:px-[20px] md:px-5 pb-[7rem] md:pb-10"
+        className="pb-[7rem] md:pb-10"
         style={{
           position: 'relative',
           zIndex: 1,
           width: '100%',
           maxWidth: '680px',
           margin: '0 auto',
+          padding: '0 20px',
           boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
@@ -141,7 +142,7 @@ export default function HomePage() {
         >
           {/* 메인 타이틀 — Gowun Dodum */}
           <h1
-            className="text-[1.4rem] md:text-[2rem] leading-snug mb-8"
+            className="text-[1.4rem] md:text-[2rem] leading-snug"
             style={{
               fontFamily: "'Gowun Dodum', sans-serif",
               fontWeight: 400,
@@ -152,13 +153,13 @@ export default function HomePage() {
             지금, 서랍에 간직하고 싶은<br className="md:hidden" /> 생각이 있나요?
           </h1>
 
-          {/* 설명 — 한 줄 */}
           <p
             className="whitespace-normal break-keep md:whitespace-nowrap"
             style={{
               fontSize: '0.8rem',
               color: 'var(--color-text-muted)',
               lineHeight: 1.75,
+              marginTop: isMobile ? '16px' : '20px',
             }}
           >
             매일의 작은 생각과 기록이 축적되다 보면,<br className="md:hidden" /> 어느날 반짝이는 영감이 가까이 와있을 거에요.

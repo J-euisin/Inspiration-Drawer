@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationGuard } from '@/lib/navigation-guard-context';
 
@@ -14,10 +15,34 @@ export default function Navigation() {
   const router   = useRouter();
   const { requestNavigation } = useNavigationGuard();
 
+  const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    
+    handleResize();
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   function handleNav(href: string) {
     if (pathname === href) return;
     requestNavigation(() => router.push(href));
   }
+
+  const isHome = pathname === '/';
+  // Desktop && Home -> Never show background
+  const showBackground = scrolled && !(isHome && !isMobile);
+
   return (
     <>
       {/* Top bar only — 데스크탑에서는 로고+메뉴, 모바일에서는 로고만 */}
@@ -26,7 +51,10 @@ export default function Navigation() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: 'transparent',
+          background: showBackground ? 'rgba(250, 248, 245, 0.2)' : 'transparent',
+          backdropFilter: showBackground ? 'blur(12px)' : 'none',
+          WebkitBackdropFilter: showBackground ? 'blur(12px)' : 'none',
+          transition: 'background 0.2s, backdrop-filter 0.2s',
         }}
       >
         <div
