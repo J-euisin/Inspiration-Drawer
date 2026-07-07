@@ -12,6 +12,14 @@ export const metadata: Metadata = {
     description: '떠오르는 단상과 감명 깊은 문장을 나만의 카드로 소장하세요.',
     locale: 'ko_KR',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: '영감의 서랍 미리보기',
+      },
+    ],
   },
 };
 

@@ -146,7 +146,7 @@ export default function HomePage() {
         >
           {/* 메인 타이틀 */}
           <h1
-            className="text-[1.4rem] md:text-[2rem] leading-snug"
+            className="text-[25px] md:text-[2rem] leading-snug break-keep"
             style={{
               fontFamily: "'Noto Sans KR', sans-serif",
               fontWeight: 200,
@@ -442,7 +442,7 @@ export default function HomePage() {
                   <button
                     className="btn-primary"
                     onClick={() => handleDelete(selectedThought.id)}
-                    style={{ flex: 1, background: '#EF4444' }}
+                    style={{ flex: 1 }}
                   >
                     삭제
                   </button>
@@ -468,7 +468,7 @@ export default function HomePage() {
                 </button>
                 
                 {editingId === selectedThought.id ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '2.5rem' }}>
                     <textarea
                       className="input-base"
                       value={editText}
@@ -510,7 +510,41 @@ export default function HomePage() {
                       <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                         {formatDateEn(selectedThought.updatedAt ?? selectedThought.createdAt)}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center' }}>
+                          <button
+                            title="수정"
+                            onClick={() => handleEditStart(selectedThought)}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              fontWeight: 500,
+                              color: '#A7A3D8',
+                              padding: '0.3rem',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            수정
+                          </button>
+                          <button
+                            title="삭제"
+                            onClick={() => setDeleteConfirmId(selectedThought.id)}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              fontWeight: 500,
+                              color: '#A7A3D8',
+                              padding: '0.3rem',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            삭제
+                          </button>
+                        </div>
                         <button
                           title="카드로 만들기"
                           onClick={() => handleMakeCard(selectedThought)}
@@ -527,34 +561,6 @@ export default function HomePage() {
                           }}
                         >
                           ＋ 카드 만들기
-                        </button>
-                        <button
-                          title="수정"
-                          onClick={() => handleEditStart(selectedThought)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            padding: '0.3rem',
-                            color: 'var(--color-text-muted)',
-                          }}
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          title="삭제"
-                          onClick={() => setDeleteConfirmId(selectedThought.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            padding: '0.3rem',
-                            color: 'var(--color-text-muted)',
-                          }}
-                        >
-                          🗑️
                         </button>
                       </div>
                     </div>

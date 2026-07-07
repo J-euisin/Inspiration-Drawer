@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FontStyle, FONT_LABELS, FONT_CLASSNAMES } from '@/lib/types';
-import { saveCard, generateId } from '@/lib/storage';
+import { saveCard, generateId, updateCard, getCards } from '@/lib/storage';
 import CardPreview from '@/components/CardPreview';
 import { useNavigationGuard } from '@/lib/navigation-guard-context';
 
@@ -39,12 +39,17 @@ function CreatePageInner() {
 
   // URL 파라미터로 전달된 값 읽기
   const paramText = searchParams.get('text') ?? '';
-  const paramMode = searchParams.get('mode') === 'thought' ? 'thought' : null;
+  const paramMode = searchParams.get('mode') as CardMode | null;
+  const paramSource = searchParams.get('source') ?? '';
+  const paramAuthor = searchParams.get('author') ?? '';
+  const editId = searchParams.get('editId');
 
-  const [mode, setMode] = useState<CardMode>(paramMode ?? 'thought');
+  const [mode, setMode] = useState<CardMode>(
+    paramMode === 'quote' || paramMode === 'thought' ? paramMode : 'thought'
+  );
   const [text, setText] = useState(paramText);
-  const [source, setSource] = useState('');
-  const [author, setAuthor] = useState('');
+  const [source, setSource] = useState(paramSource);
+  const [author, setAuthor] = useState(paramAuthor);
   const [fontStyle, setFontStyle] = useState<FontStyle>('myeongjo');
   const [bgColor, setBgColor] = useState('#EEE8F8');
   const [bgImage, setBgImage] = useState<string | null>(null);
@@ -83,10 +88,28 @@ function CreatePageInner() {
     } else {
       setBgColor('#EEE8F8');
     }
-    // 모드 전환 시 출처/저자 초기화
-    setSource('');
-    setAuthor('');
   }, [mode]);
+
+  // 수정 모드: editId가 있을 경우 기존 카드 정보 불러오기
+  useEffect(() => {
+    if (editId) {
+      const cards = getCards();
+      const card = cards.find((c) => c.id === editId);
+      if (card) {
+        setMode(card.type as CardMode);
+        setText(card.text);
+        setSource(card.source || '');
+        setAuthor(card.author || '');
+        setFontStyle(card.fontStyle);
+        setBgColor(card.backgroundColor);
+        setBgImage(card.backgroundImage);
+        // customColor가 배경색 배열에 없는 경우 customColor로 렌더링
+        if (!BG_COLORS.find(c => c.hex === card.backgroundColor)) {
+          setCustomColor(card.backgroundColor);
+        }
+      }
+    }
+  }, [editId]);
 
   /* ── Handlers ── */
   const showToast = (msg: string) => {
@@ -105,25 +128,48 @@ function CreatePageInner() {
   }, []);
 
   const handleSave = async () => {
-    if (!text.trim()) {
-      showToast(mode === 'thought' ? '단상을 입력해주세요.' : '문장을 입력해주세요.');
+    if (!text.trim() && mode !== 'quote') {
+      showToast('내용을 입력해주세요.');
       return;
     }
+    if (saving) return;
+
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 350));
-    // 저장 성공 → dirty 해제 후 이동 (guard 팝업 없이)
+
+    if (editId) {
+      const cards = getCards();
+      const existing = cards.find((c) => c.id === editId);
+      if (existing) {
+        updateCard({
+          ...existing,
+          text,
+          type: mode,
+          fontStyle,
+          backgroundColor: customColor || bgColor,
+          backgroundImage: bgImage,
+          source: mode === 'quote' ? source : undefined,
+          author: mode === 'quote' ? author : undefined,
+        });
+      }
+    } else {
+      saveCard({
+        id: generateId(),
+        text,
+        type: mode,
+        fontStyle,
+        backgroundColor: customColor || bgColor,
+        backgroundImage: bgImage,
+        source: mode === 'quote' ? source : undefined,
+        author: mode === 'quote' ? author : undefined,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     setDirty(false);
-    saveCard({
-      id: generateId(),
-      text: text.trim(),
-      fontStyle,
-      backgroundColor: bgColor,
-      backgroundImage: bgImage,
-      source: mode === 'quote' ? (source.trim() || undefined) : undefined,
-      author: mode === 'quote' ? (author.trim() || undefined) : undefined,
-      createdAt: new Date().toISOString(),
-      type: mode,
-    });
+
+    // 모의 지연 효과
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     setSaving(false);
     router.push('/archive');
   };
@@ -182,7 +228,13 @@ function CreatePageInner() {
             <button
               key={item.value}
               id={`mode-${item.value}`}
-              onClick={() => setMode(item.value)}
+              onClick={() => {
+                if (mode !== item.value) {
+                  setMode(item.value);
+                  setSource('');
+                  setAuthor('');
+                }
+              }}
               style={{
                 padding: '0.5rem 1.2rem',
                 borderRadius: '9999px',
@@ -585,7 +637,7 @@ function CreatePageInner() {
                   저장 중…
                 </span>
               ) : (
-                '서랍에 담기 →'
+                editId ? '수정 완료' : '서랍에 담기 →'
               )}
             </button>
           </div>

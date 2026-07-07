@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DailyQuote } from '@/lib/types';
-import { saveCard, generateId } from '@/lib/storage';
+import { useRouter } from 'next/navigation';
 
 interface DailyQuoteCardProps {
   quote: DailyQuote;
@@ -28,8 +28,7 @@ function calcCountdown(): { h: number; m: number } {
 }
 
 export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
-  const [saved,     setSaved]     = useState(false);
-  const [saving,    setSaving]    = useState(false);
+  const router = useRouter();
   const [mounted,   setMounted]   = useState(false);
   const [countdown, setCountdown] = useState({ h: 0, m: 0 });
 
@@ -41,22 +40,15 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
     return () => clearInterval(id);
   }, []);
 
-  async function handleSave() {
-    if (saved || saving) return;
-    setSaving(true);
-    saveCard({
-      id: generateId(),
+  function handleSave() {
+    const params = new URLSearchParams({
+      mode: 'quote',
       text: quote.text,
-      fontStyle: 'myeongjo' as const,
-      backgroundColor: '#EEE8F8',
-      backgroundImage: null,
-      source: quote.source,
-      author: quote.author,
-      createdAt: new Date().toISOString(),
     });
-    await new Promise((r) => setTimeout(r, 400));
-    setSaving(false);
-    setSaved(true);
+    if (quote.author) params.append('author', quote.author);
+    if (quote.source) params.append('source', quote.source);
+
+    router.push(`/create?${params.toString()}`);
   }
 
   const genreColor  = GENRE_COLORS[quote.genre] || 'var(--color-primary)';
@@ -162,31 +154,15 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
         <button
           className="btn-accent"
           onClick={handleSave}
-          disabled={saved || saving}
           style={{
             flexShrink: 0,
-            opacity: saved ? 0.78 : 1,
-            background: saved ? '#9B8EC4' : undefined,
             fontSize: '0.82rem',
             padding: '0.42rem 1rem',
             transition: 'all 0.3s',
             whiteSpace: 'nowrap',
           }}
         >
-          {saving ? (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span
-                style={{
-                  width: '11px', height: '11px',
-                  border: '2px solid rgba(255,255,255,0.4)',
-                  borderTopColor: '#fff', borderRadius: '50%',
-                  display: 'inline-block',
-                  animation: 'spin 0.7s linear infinite',
-                }}
-              />
-              저장 중
-            </span>
-          ) : saved ? '✓ 소장 완료' : '＋ 소장하기'}
+          ＋ 소장하기
         </button>
       </div>
     </div>

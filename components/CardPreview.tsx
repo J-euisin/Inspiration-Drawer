@@ -12,6 +12,7 @@ interface CardPreviewProps {
   author?: string;
   /** 'create' view (larger) vs 'archive' view (compact) */
   size?: 'full' | 'compact';
+  date?: string;
 }
 
 const CARD_ASPECT = 1.414; // A4-ish portrait ratio (width:height = 1:1.414)
@@ -24,6 +25,7 @@ export default function CardPreview({
   source,
   author,
   size = 'full',
+  date,
 }: CardPreviewProps) {
   const fontClass = FONT_CLASSNAMES[fontStyle];
 
@@ -172,25 +174,27 @@ export default function CardPreview({
           </div>
         )}
 
-        {/* Bottom watermark */}
-        <div
-          style={{
-            marginTop: size === 'full' ? '1rem' : '0.3rem',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <span
+        {/* 하단 날짜 (있을 경우만) */}
+        {date && (
+          <div
             style={{
-              color: mutedColor,
-              fontSize: size === 'full' ? '0.62rem' : '0.48rem',
-              letterSpacing: '0.08em',
-              fontFamily: "'Noto Sans KR', sans-serif",
+              marginTop: size === 'full' ? '1rem' : '0.5rem',
+              display: 'flex',
+              justifyContent: 'flex-end',
             }}
           >
-            영감의 서랍
-          </span>
-        </div>
+            <span
+              style={{
+                color: mutedColor,
+                fontSize: size === 'full' ? '0.62rem' : '0.48rem',
+                letterSpacing: '0.04em',
+                fontFamily: 'inherit',
+              }}
+            >
+              {date}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

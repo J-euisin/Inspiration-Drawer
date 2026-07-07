@@ -22,6 +22,15 @@ export function saveCard(card: Card): void {
   localStorage.setItem(CARDS_KEY, JSON.stringify(raw));
 }
 
+export function updateCard(card: Card): void {
+  const raw = getRawCards();
+  const index = raw.findIndex((c) => c.id === card.id);
+  if (index !== -1) {
+    raw[index] = card;
+    localStorage.setItem(CARDS_KEY, JSON.stringify(raw));
+  }
+}
+
 export function deleteCard(id: string): void {
   const raw = getRawCards().filter((c) => c.id !== id);
   localStorage.setItem(CARDS_KEY, JSON.stringify(raw));

@@ -148,7 +148,7 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     fontFamily: 'inherit',
-                    background: '#c0392b',
+                    background: 'var(--color-primary)',
                     color: '#fff',
                     transition: 'background 0.2s',
                   }}

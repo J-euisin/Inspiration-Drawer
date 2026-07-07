@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { Card } from '@/lib/types';
-import { deleteCard } from '@/lib/storage';
+import { deleteCard, formatDateEn } from '@/lib/storage';
 import CardPreview from './CardPreview';
 
 interface CardItemProps {
@@ -12,8 +13,10 @@ interface CardItemProps {
 }
 
 export default function CardItem({ card, onDeleted }: CardItemProps) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // Portal은 클라이언트에서만 사용 가능
@@ -45,7 +48,7 @@ export default function CardItem({ card, onDeleted }: CardItemProps) {
   const modal = expanded && mounted ? createPortal(
     /* ── 전체 화면 오버레이 ── */
     <div
-      onClick={() => setExpanded(false)}
+      onClick={() => { setExpanded(false); setDeleteConfirm(false); }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -86,47 +89,60 @@ export default function CardItem({ card, onDeleted }: CardItemProps) {
           source={card.source}
           author={card.author}
           size="full"
+          date={formatDateEn(card.createdAt)}
         />
 
-        {/* 메타: 작성 날짜 */}
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-          {new Date(card.createdAt).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            weekday: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </p>
-
         {/* 액션 버튼 */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.6rem',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <button
-            className="btn-ghost"
-            onClick={handleDelete}
+        {deleteConfirm ? (
+          <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+            <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '1rem' }}>
+              이 카드를 삭제할까요?
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+              <button
+                className="btn-ghost"
+                onClick={(e) => { e.stopPropagation(); setDeleteConfirm(false); }}
+                style={{ flex: 1 }}
+              >
+                취소
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleDelete}
+                style={{ flex: 1 }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
             style={{
-              color: '#c0392b',
-              borderColor: '#e8d5d3',
-              fontSize: '0.82rem',
+              display: 'flex',
+              gap: '0.6rem',
+              justifyContent: 'flex-end',
             }}
           >
-            🗑 삭제
-          </button>
-          <button
-            className="btn-primary"
-            onClick={() => setExpanded(false)}
-            style={{ fontSize: '0.85rem' }}
-          >
-            닫기
-          </button>
-        </div>
+            <button
+              className="btn-ghost"
+              onClick={(e) => { e.stopPropagation(); setDeleteConfirm(true); }}
+              style={{
+                color: 'var(--color-primary)',
+                borderColor: 'var(--color-border)',
+                fontSize: '0.85rem',
+              }}
+            >
+              삭제
+            </button>
+            <button
+              className="btn-primary"
+              onClick={(e) => { e.stopPropagation(); router.push(`/create?editId=${card.id}`); }}
+              style={{ fontSize: '0.85rem' }}
+            >
+              수정
+            </button>
+          </div>
+        )}
       </div>
     </div>,
     document.body
