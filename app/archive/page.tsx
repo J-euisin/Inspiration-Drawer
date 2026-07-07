@@ -56,9 +56,9 @@ export default function ArchivePage() {
               <h1
                 className="max-md:mt-[40px]"
                 style={{
-                  fontFamily: "'Gowun Dodum', sans-serif",
+                  fontFamily: "'Noto Sans KR', sans-serif",
                   fontSize: 'clamp(1.4rem, 4vw, 1.9rem)',
-                  fontWeight: 700,
+                  fontWeight: 400,
                   color: 'var(--color-text)',
                   marginBottom: '0.3rem',
                 }}
@@ -73,11 +73,6 @@ export default function ArchivePage() {
                 </p>
               )}
             </div>
-            <Link href="/create">
-              <button className="btn-primary" style={{ fontSize: '0.85rem' }}>
-                ✎ 새 카드 만들기
-              </button>
-            </Link>
           </div>
         </div>
 

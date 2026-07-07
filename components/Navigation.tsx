@@ -82,26 +82,11 @@ export default function Navigation() {
               gap: '0.5rem',
             }}
           >
-            <span
-              style={{
-                fontSize: '1.35rem',
-                lineHeight: 1,
-                filter: 'drop-shadow(0 1px 3px rgba(110,107,168,0.3))',
-              }}
-            >
-              🗂️
-            </span>
-            <span
-              style={{
-                fontFamily: "'Gowun Batang', serif",
-                fontSize: '1.05rem',
-                fontWeight: 700,
-                color: 'var(--color-primary)',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              영감의 서랍
-            </span>
+            <img
+              src="/logo.png"
+              alt="영감의 서랍 로고"
+              style={{ height: '25px', width: 'auto', objectFit: 'contain' }}
+            />
           </button>
 
           {/* 메뉴 — 오른쪽 끝 (데스크탑에서만 표시) */}

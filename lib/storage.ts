@@ -38,17 +38,21 @@ function getRawCards(): Card[] {
   }
 }
 
+export function formatDateEn(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const month = d.toLocaleString('en-US', { month: 'short' });
+  const day = d.getDate();
+  const year = d.getFullYear();
+  return `${month} ${day}. ${year}`;
+}
+
 export function groupCardsByDate(cards: Card[]): { date: string; cards: Card[] }[] {
   const map: Record<string, Card[]> = {};
   const order: string[] = [];
 
   for (const card of cards) {
-    const dateLabel = new Date(card.createdAt).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long',
-    });
+    const dateLabel = formatDateEn(card.createdAt);
     if (!map[dateLabel]) {
       map[dateLabel] = [];
       order.push(dateLabel);

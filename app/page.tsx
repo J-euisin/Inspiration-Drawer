@@ -10,21 +10,13 @@ import {
   updateThought,
   deleteThought,
   generateId,
+  formatDateEn,
 } from '@/lib/storage';
 import { useRouter } from 'next/navigation';
 
 // 초기화 코드는 import들 바로 아래에 둡니다.
 if (typeof window !== 'undefined') {
   mixpanel.init('0b1dd49538bf87bbb8b09c557d21680e', { track_pageview: true });
-}
-
-function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('ko-KR', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 export default function HomePage() {
@@ -37,6 +29,11 @@ export default function HomePage() {
   const [editText,   setEditText]   = useState('');
   const [focused,    setFocused]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
+  
+  // 팝업 관련 상태
+  const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
   const listRef     = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isComposing = useRef(false);
@@ -78,6 +75,8 @@ export default function HomePage() {
   function handleDelete(id: string) {
     deleteThought(id);
     setThoughts(getThoughts());
+    setDeleteConfirmId(null);
+    setSelectedThought(null);
   }
 
   function handleEditStart(t: Thought) {
@@ -89,9 +88,14 @@ export default function HomePage() {
     const trimmed = editText.trim();
     if (!trimmed) return;
     updateThought(id, trimmed);
-    setThoughts(getThoughts());
+    const newThoughts = getThoughts();
+    setThoughts(newThoughts);
     setEditingId(null);
     setEditText('');
+    if (selectedThought) {
+      const updated = newThoughts.find(t => t.id === id);
+      if (updated) setSelectedThought(updated);
+    }
   }
 
   function handleMakeCard(thought: Thought) {
@@ -140,12 +144,12 @@ export default function HomePage() {
             padding: '5rem 1rem 2.25rem',
           }}
         >
-          {/* 메인 타이틀 — Gowun Dodum */}
+          {/* 메인 타이틀 */}
           <h1
             className="text-[1.4rem] md:text-[2rem] leading-snug"
             style={{
-              fontFamily: "'Gowun Dodum', sans-serif",
-              fontWeight: 400,
+              fontFamily: "'Noto Sans KR', sans-serif",
+              fontWeight: 200,
               color: 'var(--color-text)',
               letterSpacing: '-0.01em',
             }}
@@ -261,182 +265,111 @@ export default function HomePage() {
         </section>
 
         {/* ── 기록된 단상 목록 ── */}
-        {thoughts.length > 0 && (
           <section
             style={{ marginBottom: '1.5rem' }}
             className="animate-fade-in"
           >
-            <div
-              ref={listRef}
-              style={{
-                maxHeight: '320px',
-                overflowY: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.6rem',
-                paddingRight: '2px',
-              }}
-            >
-              {thoughts.map((t) => (
+            {thoughts.length === 0 ? (
+              <div
+                style={{
+                  height: '48px', // 1-row box height
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 <div
-                  key={t.id}
-                  className="animate-fade-in"
                   style={{
-                    background: 'var(--color-surface)',
-                    borderRadius: '1rem',
-                    border: '1px solid var(--color-border)',
-                    padding: '0.85rem 1rem',
-                    boxShadow: '0 1px 8px rgba(110,107,168,0.07)',
+                    width: '100%',
+                    height: '1px',
+                    background: 'linear-gradient(to right, transparent, rgba(167, 163, 216, 0.5), transparent)',
                   }}
-                >
-                  {editingId === t.id ? (
-                    /* Inline edit mode */
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <textarea
-                        className="input-base"
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                        maxLength={300}
-                        autoFocus
-                        style={{ minHeight: '64px', fontSize: '0.88rem', resize: 'none' }}
-                      />
-                      <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
-                        <button
-                          className="btn-ghost"
-                          style={{ fontSize: '0.78rem', padding: '0.35rem 0.8rem' }}
-                          onClick={() => setEditingId(null)}
-                        >
-                          취소
-                        </button>
-                        <button
-                          className="btn-primary"
-                          style={{ fontSize: '0.78rem', padding: '0.35rem 0.8rem' }}
-                          onClick={() => handleEditSave(t.id)}
-                        >
-                          저장
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Read mode */
-                    <>
-                      <p
-                        style={{
-                          fontSize: '0.9rem',
-                          lineHeight: 1.7,
-                          color: 'var(--color-text)',
-                          marginBottom: '0.55rem',
-                          wordBreak: 'keep-all',
-                          whiteSpace: 'pre-wrap',
-                        }}
-                      >
-                        {t.text}
-                      </p>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '0.4rem',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                          {formatDateTime(t.updatedAt ?? t.createdAt)}
-                          {t.updatedAt && ' (수정됨)'}
-                        </span>
-                        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-                          <button
-                            title="카드로 만들기"
-                            onClick={() => handleMakeCard(t)}
-                            style={{
-                              background: 'rgba(110,107,168,0.1)',
-                              border: 'none',
-                              borderRadius: '9999px',
-                              padding: '0.28rem 0.7rem',
-                              fontSize: '0.72rem',
-                              fontWeight: 600,
-                              color: 'var(--color-primary)',
-                              cursor: 'pointer',
-                              fontFamily: 'inherit',
-                              transition: 'background 0.2s',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            ＋ 카드로 만들기
-                          </button>
-                          <button
-                            title="수정"
-                            onClick={() => handleEditStart(t)}
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '0.82rem',
-                              padding: '0.28rem 0.5rem',
-                              borderRadius: '9999px',
-                              color: 'var(--color-text-muted)',
-                              transition: 'color 0.2s, background 0.2s',
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(110,107,168,0.08)';
-                              (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                              (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-muted)';
-                            }}
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            title="삭제"
-                            onClick={() => handleDelete(t.id)}
-                            style={{
-                              background: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '0.82rem',
-                              padding: '0.28rem 0.5rem',
-                              borderRadius: '9999px',
-                              color: 'var(--color-text-muted)',
-                              transition: 'color 0.2s, background 0.2s',
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(192,57,43,0.08)';
-                              (e.currentTarget as HTMLButtonElement).style.color = '#c0392b';
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                              (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-muted)';
-                            }}
-                          >
-                            🗑
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                />
+              </div>
+            ) : (
+              /* 테두리 래퍼 (스크롤바를 안쪽으로 넣고 테두리와 여백 둠) */
+              <div
+                style={{
+                  border: '1px solid rgba(167, 163, 216, 0.4)',
+                  borderRadius: '1rem',
+                  padding: '0.4rem 6px 0.4rem 0.4rem',
+                }}
+              >
+              <div
+                ref={listRef}
+                style={{
+                  width: '100%',
+                  minHeight: '34px', // 1 compact row height
+                  maxHeight: '135px', // About 4 compact rows
+                  overflowY: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                  paddingRight: '4px', // Scrollbar space
+                  // 아래로 갈수록 흐려지는(페이드 아웃) 영역 마스크 효과 (우측 스크롤바 영역은 마스크 예외 처리)
+                  WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%), linear-gradient(to bottom, black, black)',
+                  maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%), linear-gradient(to bottom, black, black)',
+                  WebkitMaskSize: 'calc(100% - 16px) 100%, 16px 100%',
+                  maskSize: 'calc(100% - 16px) 100%, 16px 100%',
+                  WebkitMaskPosition: 'left top, right top',
+                  maskPosition: 'left top, right top',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                }}
+              >
+                {[...thoughts]
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((t) => (
+                  <div
+                    key={t.id}
+                    onClick={() => setSelectedThought(t)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.35rem 0.8rem',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      borderRadius: '0.5rem',
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.background = 'rgba(110,107,168,0.06)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+                    }}
+                  >
+                  <p
+                    style={{
+                      flex: 1,
+                      fontSize: '0.8rem',
+                      color: 'var(--color-text)',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      marginRight: '0.8rem',
+                    }}
+                  >
+                    {t.text}
+                  </p>
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      fontSize: '0.7rem',
+                      color: 'var(--color-text-muted)',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {formatDateEn(t.updatedAt ?? t.createdAt)}
+                  </span>
                 </div>
               ))}
             </div>
+            </div>
+            )}
           </section>
-        )}
 
-        {/* 빈 상태 */}
-        {thoughts.length === 0 && (
-          <p
-            style={{
-              marginBottom: '1.5rem',
-              fontSize: '0.8rem',
-              color: 'var(--color-text-muted)',
-              textAlign: 'center',
-              padding: '0.75rem 1rem',
-            }}
-          >
-            아직 기록된 단상이 없어요. 오늘의 생각을 남겨보세요 🌱
-          </p>
-        )}
+
 
         {/* ── 오늘의 문장 배너 (하단) ── */}
         <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -457,6 +390,182 @@ export default function HomePage() {
           영감 靈感 : 창조적인 일의 계기가 되는 기발한 착상이나 자극.
         </p>
       </div>
+
+      {/* ── 상세 팝업 모달 ── */}
+      {selectedThought && (
+        <div
+          onClick={() => {
+            if (!deleteConfirmId) {
+              setSelectedThought(null);
+              setEditingId(null);
+            }
+          }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100,
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="animate-fade-in"
+            style={{
+              background: 'var(--color-surface)',
+              borderRadius: '1.25rem',
+              width: '100%',
+              maxWidth: '400px',
+              padding: '1.5rem',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+              position: 'relative',
+            }}
+          >
+            {/* 삭제 확인 모달 */}
+            {deleteConfirmId === selectedThought.id ? (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
+                  이 단상을 삭제할까요?
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                  <button
+                    className="btn-ghost"
+                    onClick={() => setDeleteConfirmId(null)}
+                    style={{ flex: 1 }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className="btn-primary"
+                    onClick={() => handleDelete(selectedThought.id)}
+                    style={{ flex: 1, background: '#EF4444' }}
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* 일반 상세 모달 */
+              <>
+                <button
+                  onClick={() => { setSelectedThought(null); setEditingId(null); }}
+                  style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '1.2rem',
+                    cursor: 'pointer',
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  ✕
+                </button>
+                
+                {editingId === selectedThought.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '1rem' }}>
+                    <textarea
+                      className="input-base"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      maxLength={300}
+                      autoFocus
+                      style={{ minHeight: '100px', fontSize: '0.9rem', resize: 'none' }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                      <button className="btn-ghost" onClick={() => setEditingId(null)}>취소</button>
+                      <button className="btn-primary" onClick={() => handleEditSave(selectedThought.id)}>저장</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                      <p
+                        style={{
+                          fontSize: '1.05rem',
+                          lineHeight: 1.6,
+                          color: 'var(--color-text)',
+                          wordBreak: 'keep-all',
+                          whiteSpace: 'pre-wrap',
+                        }}
+                      >
+                        {selectedThought.text}
+                      </p>
+                    </div>
+                    
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        borderTop: '1px solid var(--color-border)',
+                        paddingTop: '1rem',
+                      }}
+                    >
+                      <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                        {formatDateEn(selectedThought.updatedAt ?? selectedThought.createdAt)}
+                      </span>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button
+                          title="카드로 만들기"
+                          onClick={() => handleMakeCard(selectedThought)}
+                          style={{
+                            background: 'rgba(110,107,168,0.1)',
+                            border: 'none',
+                            borderRadius: '9999px',
+                            padding: '0.4rem 0.8rem',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                            color: 'var(--color-primary)',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          ＋ 카드 만들기
+                        </button>
+                        <button
+                          title="수정"
+                          onClick={() => handleEditStart(selectedThought)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            padding: '0.3rem',
+                            color: 'var(--color-text-muted)',
+                          }}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          title="삭제"
+                          onClick={() => setDeleteConfirmId(selectedThought.id)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            padding: '0.3rem',
+                            color: 'var(--color-text-muted)',
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

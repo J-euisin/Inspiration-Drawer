@@ -144,9 +144,9 @@ function CreatePageInner() {
           <h1
             className="max-md:mt-[40px]"
             style={{
-              fontFamily: "'Gowun Dodum', sans-serif",
+              fontFamily: "'Noto Sans KR', sans-serif",
               fontSize: 'clamp(1.4rem, 4vw, 1.9rem)',
-              fontWeight: 700,
+              fontWeight: 400,
               color: 'var(--color-text)',
               marginBottom: '0.35rem',
             }}
@@ -155,7 +155,7 @@ function CreatePageInner() {
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem' }}>
             {mode === 'thought'
-              ? '단상을 담아 나만의 감성 카드로 만들어보세요.'
+              ? '단상과 문장을 담아 나만의 카드를 만들어보세요.'
               : '문장을 입력하고, 나만의 감성으로 카드를 완성하세요.'}
           </p>
         </div>
@@ -621,7 +621,8 @@ function CreatePageInner() {
                 color: 'var(--color-text-muted)',
               }}
             >
-              왼쪽에서 수정하면 바로 반영됩니다
+              <span className="hidden md:inline">왼쪽에서 수정하면 바로 반영됩니다</span>
+              <span className="md:hidden">위에서 수정하면 바로 반영됩니다</span>
             </p>
           </div>
         </div>
