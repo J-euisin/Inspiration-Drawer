@@ -36,8 +36,8 @@ export default function ScrollToTop() {
 
   // hover 반전은 PC에서만 적용
   const isHovered = hover && !isMobile;
-  const bg = isHovered ? '#6E6BA8' : '#FFFFFF';
-  const color = isHovered ? '#FFFFFF' : '#6E6BA8';
+  const bg = isHovered ? '#675ECF' : '#FFFFFF';
+  const color = isHovered ? '#FFFFFF' : '#675ECF';
 
   return (
     <button

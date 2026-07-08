@@ -9,7 +9,7 @@ interface DailyQuoteCardProps {
 }
 
 const GENRE_COLORS: Record<string, string> = {
-  소설: '#6E6BA8', 시: '#7E79C0', 영화: '#7E8CE0',
+  소설: '#675ECF', 시: '#7E79C0', 영화: '#7E8CE0',
   에세이: '#9B8EC4', 명언: '#8B7EC8', 칼럼: '#7A8BC0',
   일기집: '#9B8EC4', 회고록: '#9B8EC4', 인문철학: '#7E79C0',
   어록: '#8B7EC8', 철학: '#7E79C0',
@@ -62,7 +62,7 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
         background: 'var(--color-surface)',
         border: '1px solid var(--color-border)',
         borderRadius: '1.5rem',
-        boxShadow: '0 2px 16px rgba(110,107,168,0.10)',
+        boxShadow: '0 2px 16px rgba(103, 94, 207,0.10)',
         padding: '0.9rem 1.25rem 0.8rem',
         display: 'flex',
         flexDirection: 'column',
@@ -76,10 +76,10 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
             fontSize: '0.68rem', fontWeight: 700,
             letterSpacing: '0.07em', textTransform: 'uppercase',
             color: 'var(--color-primary)',
-            border: '1px solid rgba(110,107,168,0.28)',
+            border: '1px solid rgba(103, 94, 207,0.28)',
             borderRadius: '9999px',
             padding: '0.15rem 0.6rem',
-            background: 'rgba(110,107,168,0.07)',
+            background: 'rgba(103, 94, 207,0.07)',
             whiteSpace: 'nowrap',
           }}
         >

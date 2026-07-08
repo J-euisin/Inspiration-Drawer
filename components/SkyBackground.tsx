@@ -47,10 +47,10 @@ function getSkyColors(hour: number): { top: string; bot: string } {
 
 // ─── 개발용 시간 프리셋 ──────────────────────────────────────────────────────
 const PRESETS = [
-  { label: '🌅 새벽', h: 6.5  },
-  { label: '☀️ 낮',   h: 12   },
-  { label: '🌇 저녁', h: 18.5 },
-  { label: '🌙 밤',   h: 23   },
+  { label: '새벽', h: 6.5  },
+  { label: '낮',   h: 12   },
+  { label: '저녁', h: 18.5 },
+  { label: '밤',   h: 23   },
 ];
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -157,7 +157,7 @@ export default function SkyBackground({ devHour, setDevHour }: SkyBackgroundProp
                   fontFamily: 'inherit',
                   fontWeight: devHour === p.h ? 700 : 400,
                   background: devHour === p.h
-                    ? 'rgba(110,107,168,0.5)'
+                    ? 'rgba(103, 94, 207,0.5)'
                     : 'rgba(255,255,255,0.07)',
                   color: devHour === p.h ? '#fff' : 'rgba(210,205,245,0.8)',
                   transition: 'all 0.2s',
@@ -210,7 +210,7 @@ export default function SkyBackground({ devHour, setDevHour }: SkyBackgroundProp
             transition: 'all 0.2s',
           }}
         >
-          🕐
+          시간
         </button>
       </div>
     </>

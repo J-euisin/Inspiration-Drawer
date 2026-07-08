@@ -11,7 +11,7 @@
 
 | 역할 | 컬러 이름 | HEX |
 | --- | --- | --- |
-| Primary | Soft Indigo Purple | `#6E6BA8` |
+| Primary | Soft Indigo Purple | `#675ECF` |
 | Secondary | Lavender Mist | `#A7A3D8` |
 | Accent | Periwinkle | `#7E8CE0` |
 | Background | Warm Ivory | `#FAF8F5` |
@@ -19,7 +19,7 @@
 
 ### 컬러 사용 가이드
 
-- **Primary (`#6E6BA8`)** : 주요 버튼, 핵심 인터랙션 요소, 강조가 필요한 영역
+- **Primary (`#675ECF`)** : 주요 버튼, 핵심 인터랙션 요소, 강조가 필요한 영역
 - **Secondary (`#A7A3D8`)** : 보조 버튼, 비활성/서브 요소, 부드러운 강조
 - **Accent (`#7E8CE0`)** : 포인트 컬러. '소장하기' 버튼, 활성 상태, 링크 등 시선을 끌어야 하는 곳에 절제해서 사용
 - **Background (`#FAF8F5`)** : 전체 배경. 따뜻한 아이보리 톤으로 눈의 피로를 줄이고 감성적인 분위기 형성

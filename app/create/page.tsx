@@ -222,8 +222,8 @@ function CreatePageInner() {
           }}
         >
           {([
-            { value: 'thought' as CardMode, label: '💭 단상 기록하기' },
-            { value: 'quote'   as CardMode, label: '📖 문장 수집하기' },
+            { value: 'thought' as CardMode, label: '단상 기록하기' },
+            { value: 'quote'   as CardMode, label: '문장 수집하기' },
           ] as { value: CardMode; label: string }[]).map((item) => (
             <button
               key={item.value}
@@ -364,11 +364,11 @@ function CreatePageInner() {
                     color: 'var(--color-text-muted)',
                     lineHeight: 1.6,
                     padding: '0.5rem 0.75rem',
-                    background: 'rgba(110,107,168,0.05)',
+                    background: 'rgba(103, 94, 207,0.05)',
                     borderRadius: '0.625rem',
                   }}
                 >
-                  💭 단상은 출처·저자 없이 나의 생각을 그대로 담습니다.
+                  단상은 출처·저자 없이 나의 생각을 그대로 담습니다.
                 </p>
               )}
             </section>
@@ -397,7 +397,7 @@ function CreatePageInner() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '0.75rem 1rem',
-                        background: active ? 'rgba(110,107,168,0.08)' : 'transparent',
+                        background: active ? 'rgba(103, 94, 207,0.08)' : 'transparent',
                         border: `1.5px solid ${active ? 'var(--color-secondary)' : 'var(--color-border)'}`,
                         borderRadius: '0.875rem',
                         cursor: 'pointer',
@@ -460,7 +460,7 @@ function CreatePageInner() {
                       fontFamily: 'inherit',
                     }}
                   >
-                    {t === 'color' ? '🎨 배경 색상' : '🖼 이미지'}
+                    {t === 'color' ? '배경 색상' : '이미지'}
                   </button>
                 ))}
               </div>
@@ -596,7 +596,7 @@ function CreatePageInner() {
                         transition: 'border-color 0.2s, background 0.2s',
                       }}
                     >
-                      <span style={{ fontSize: '1.6rem' }}>🖼</span>
+                      <span style={{ fontSize: '1.6rem', marginBottom: '0.2rem' }}>+</span>
                       이미지 업로드 (5MB 이하)
                     </button>
                   )}

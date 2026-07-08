@@ -8,10 +8,10 @@ import CardItem from '@/components/CardItem';
 
 type TabFilter = 'all' | 'quote' | 'thought';
 
-const TAB_CONFIG: { value: TabFilter; label: string; emoji: string }[] = [
-  { value: 'all',     label: '전체',  emoji: '⊞' },
-  { value: 'quote',   label: '문장',  emoji: '📖' },
-  { value: 'thought', label: '단상',  emoji: '💭' },
+const TAB_CONFIG: { value: TabFilter; label: string }[] = [
+  { value: 'all',     label: '전체' },
+  { value: 'quote',   label: '문장' },
+  { value: 'thought', label: '단상' },
 ];
 
 export default function ArchivePage() {
@@ -119,7 +119,6 @@ export default function ArchivePage() {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <span>{tab.emoji}</span>
                   {tab.label}
                   <span
                     style={{
@@ -129,7 +128,7 @@ export default function ArchivePage() {
                       minWidth: '18px',
                       height: '18px',
                       borderRadius: '9999px',
-                      background: active ? 'rgba(255,255,255,0.25)' : 'rgba(110,107,168,0.1)',
+                      background: active ? 'rgba(255,255,255,0.25)' : 'rgba(103, 94, 207,0.1)',
                       color: active ? '#fff' : 'var(--color-primary)',
                       fontSize: '0.68rem',
                       fontWeight: 700,
@@ -156,12 +155,7 @@ export default function ArchivePage() {
               border: '1px solid var(--color-border)',
             }}
           >
-            <div
-              className="animate-float"
-              style={{ fontSize: '3.5rem', marginBottom: '1rem', display: 'inline-block' }}
-            >
-              🗂️
-            </div>
+            {/* 빈 상태 아이콘 제거됨 */}
             <h2
               style={{
                 fontFamily: "'Gowun Batang', serif",
@@ -202,8 +196,8 @@ export default function ArchivePage() {
               border: '1px solid var(--color-border)',
             }}
           >
-            <p style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>
-              {activeTab === 'quote' ? '📖' : '💭'}
+            <p style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: 'var(--color-primary)' }}>
+              -
             </p>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
               {activeTab === 'quote'
@@ -237,7 +231,7 @@ export default function ArchivePage() {
                       alignItems: 'center',
                       gap: '0.35rem',
                       padding: '0.25rem 0.85rem',
-                      background: 'rgba(110,107,168,0.09)',
+                      background: 'rgba(103, 94, 207,0.09)',
                       borderRadius: '9999px',
                       fontSize: '0.78rem',
                       fontWeight: 700,
@@ -245,7 +239,7 @@ export default function ArchivePage() {
                       letterSpacing: '0.03em',
                     }}
                   >
-                    📅 {group.date}
+                    {group.date}
                   </span>
                   <span
                     style={{

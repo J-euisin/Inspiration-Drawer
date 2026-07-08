@@ -5,7 +5,7 @@
 
 /* ─── Design Token ─── */
 :root {
-  --color-primary:    #6E6BA8;
+  --color-primary:    #675ECF;
   --color-secondary:  #A7A3D8;
   --color-accent:     #7E8CE0;
   --color-bg:         #FAF8F5;
@@ -19,9 +19,9 @@
   --radius-input:  0.75rem;
   --radius-modal:  1.5rem;
 
-  --shadow-soft: 0 4px 24px rgba(110, 107, 168, 0.10);
-  --shadow-card: 0 2px 16px rgba(110, 107, 168, 0.12);
-  --shadow-hover: 0 8px 32px rgba(110, 107, 168, 0.18);
+  --shadow-soft: 0 4px 24px rgba(103, 94, 207, 0.10);
+  --shadow-card: 0 2px 16px rgba(103, 94, 207, 0.12);
+  --shadow-hover: 0 8px 32px rgba(103, 94, 207, 0.18);
 }
 
 @theme inline {
@@ -126,12 +126,12 @@ body {
   border-radius: var(--radius-btn);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-  box-shadow: 0 2px 12px rgba(110,107,168,0.25);
+  box-shadow: 0 2px 12px rgba(103, 94, 207,0.25);
   white-space: nowrap;
 }
 .btn-primary:hover {
   background: #5b589a;
-  box-shadow: 0 4px 20px rgba(110,107,168,0.35);
+  box-shadow: 0 4px 20px rgba(103, 94, 207,0.35);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: translateY(0); }
@@ -223,7 +223,7 @@ body {
 .genre-chip {
   display: inline-block;
   padding: 0.2rem 0.65rem;
-  background: rgba(110,107,168,0.1);
+  background: rgba(103, 94, 207,0.1);
   color: var(--color-primary);
   font-size: 0.72rem;
   font-weight: 600;
@@ -245,6 +245,35 @@ body {
   height: 1px;
   background: var(--color-border);
   border: none;
+}
+
+/* Desktop GNB Link */
+.gnb-desktop-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+  font-weight: 400;
+}
+.gnb-desktop-link:hover {
+  color: #675ECF;
+  font-weight: 600;
+}
+.gnb-desktop-link[data-active="true"] {
+  background: #675ECF;
+  color: #fff;
+  font-weight: 600;
+}
+.gnb-desktop-link[data-active="true"]:hover {
+  color: #fff;
 }
 
 /* Page fade wrapper */

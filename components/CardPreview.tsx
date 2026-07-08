@@ -37,8 +37,8 @@ export default function CardPreview({
     overflow: 'hidden',
     background: backgroundColor,
     boxShadow: size === 'full'
-      ? '0 8px 40px rgba(110,107,168,0.18)'
-      : '0 2px 14px rgba(110,107,168,0.13)',
+      ? '0 8px 40px rgba(103, 94, 207,0.18)'
+      : '0 2px 14px rgba(103, 94, 207,0.13)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -108,7 +108,7 @@ export default function CardPreview({
           style={{
             fontSize: size === 'full' ? '3.5rem' : '1.8rem',
             lineHeight: 1,
-            color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(110,107,168,0.18)',
+            color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(103, 94, 207,0.18)',
             fontFamily: "'Gowun Batang', serif",
             marginBottom: size === 'full' ? '0.5rem' : '0.2rem',
           }}

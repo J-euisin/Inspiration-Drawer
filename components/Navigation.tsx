@@ -5,9 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationGuard } from '@/lib/navigation-guard-context';
 
 const navItems = [
-  { href: '/',        label: '오늘의 영감', icon: '✦' },
-  { href: '/create',  label: '카드 만들기', icon: '✎' },
-  { href: '/archive', label: '나의 서랍',   icon: '⊞' },
+  { href: '/',        label: '오늘의 영감', id: 'home' },
+  { href: '/create',  label: '카드 만들기', id: 'create' },
+  { href: '/archive', label: '나의 서랍',   id: 'archive' },
 ];
 
 export default function Navigation() {
@@ -97,23 +97,9 @@ export default function Navigation() {
                 <button
                   key={item.href}
                   onClick={() => handleNav(item.href)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    padding: '0.4rem 0.85rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.84rem',
-                    fontWeight: active ? 600 : 400,
-                    color: active ? '#fff' : 'var(--color-text-muted)',
-                    background: active ? 'var(--color-primary)' : 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit',
-                  }}
+                  className="gnb-desktop-link"
+                  data-active={active}
                 >
-                  <span style={{ fontSize: '0.8rem' }}>{item.icon}</span>
                   {item.label}
                 </button>
               );
@@ -154,8 +140,12 @@ export default function Navigation() {
                 transition: 'color 0.2s',
               }}
             >
-              <span style={{ fontSize: '1.2rem', opacity: active ? 1 : 0.6 }}>
-                {item.icon}
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.16rem', height: '2.16rem' }}>
+                <img 
+                  src={`/icons/${item.id}-${active ? 'active' : 'inactive'}.svg?v=4`} 
+                  alt={item.label}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
               </span>
               <span
                 style={{

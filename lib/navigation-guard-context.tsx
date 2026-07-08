@@ -101,12 +101,10 @@ export function NavigationGuardProvider({ children }: { children: ReactNode }) {
                 gap: '1.25rem',
               }}
             >
-              {/* 아이콘 + 제목 */}
+              {/* 제목 */}
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✏️</div>
                 <h2
                   style={{
-                    fontFamily: "'Gowun Batang', serif",
                     fontSize: '1.15rem',
                     fontWeight: 700,
                     color: 'var(--color-text)',

@@ -333,7 +333,7 @@ export default function HomePage() {
                       borderRadius: '0.5rem',
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.background = 'rgba(110,107,168,0.06)';
+                      (e.currentTarget as HTMLDivElement).style.background = 'rgba(103, 94, 207,0.06)';
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLDivElement).style.background = 'transparent';
@@ -549,7 +549,7 @@ export default function HomePage() {
                           title="카드로 만들기"
                           onClick={() => handleMakeCard(selectedThought)}
                           style={{
-                            background: 'rgba(110,107,168,0.1)',
+                            background: 'rgba(103, 94, 207,0.1)',
                             border: 'none',
                             borderRadius: '9999px',
                             padding: '0.4rem 0.8rem',
