@@ -67,9 +67,9 @@ export default function Navigation() {
             justifyContent: 'space-between',
             boxSizing: 'border-box',
           }}
-          className="max-md:px-4"
+          className="max-md:px-5"
         >
-          {/* 로고 — 왼쪽 끝 */}
+          {/* 로고 — 모바일에서 /create, /archive는 숨기고 데스크탑에서는 항상 표시 */}
           <button
             onClick={() => handleNav('/')}
             style={{
@@ -77,10 +77,18 @@ export default function Navigation() {
               border: 'none',
               cursor: 'pointer',
               padding: 0,
-              display: 'flex',
+              display:
+                (pathname === '/create' || pathname === '/archive')
+                  ? undefined  /* 모바일: 아래 인라인 스타일로 제어, 데스크탑: flex */
+                  : 'flex',
               alignItems: 'center',
               gap: '0.5rem',
             }}
+            className={
+              (pathname === '/create' || pathname === '/archive')
+                ? 'max-md:!hidden flex'
+                : 'flex'
+            }
           >
             <img
               src="/logo.png"
@@ -88,6 +96,22 @@ export default function Navigation() {
               style={{ height: '25px', width: 'auto', objectFit: 'contain' }}
             />
           </button>
+
+          {/* 모바일 전용 페이지 타이틀 — /create, /archive에서만 표시 */}
+          {(pathname === '/create' || pathname === '/archive') && (
+            <span
+              className="md:!hidden"
+              style={{
+                fontFamily: "'Noto Sans KR', sans-serif",
+                fontSize: '1.15rem',
+                fontWeight: 600,
+                color: 'var(--color-text)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              {pathname === '/create' ? '카드 만들기' : '나의 서랍'}
+            </span>
+          )}
 
           {/* 메뉴 — 오른쪽 끝 (데스크탑에서만 표시) */}
           <nav className="max-md:hidden flex gap-1">

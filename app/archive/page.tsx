@@ -41,8 +41,8 @@ export default function ArchivePage() {
   return (
     <div className="page-wrapper">
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
-        {/* Header */}
-        <div className="animate-fade-in" style={{ marginBottom: '1.5rem' }}>
+        {/* Header — PC에서만 표시, 모바일은 GNB에 타이틀이 있으므로 숨김 */}
+        <div className="animate-fade-in max-md:hidden" style={{ marginBottom: '1.5rem' }}>
           <div
             style={{
               display: 'flex',
@@ -54,7 +54,6 @@ export default function ArchivePage() {
           >
             <div>
               <h1
-                className="max-md:mt-[40px]"
                 style={{
                   fontFamily: "'Noto Sans KR', sans-serif",
                   fontSize: 'clamp(1.4rem, 4vw, 1.9rem)',
