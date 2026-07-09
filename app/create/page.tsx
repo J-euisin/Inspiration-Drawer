@@ -184,7 +184,7 @@ function CreatePageInner() {
     <div className="page-wrapper">
       {toast && <div className="toast">{toast}</div>}
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
+      <div className="mobile-reduce-top" style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
         {/* Page header — PC에서만 표시, 모바일은 GNB에 타이틀이 있으므로 숨김 */}
         <div className="animate-fade-in max-md:hidden" style={{ marginBottom: '1.5rem' }}>
           <h1
@@ -207,17 +207,16 @@ function CreatePageInner() {
 
         {/* ── Mode toggle ── */}
         <div
-          className="animate-fade-in"
+          className="animate-fade-in mb-7 mobile-mb-20"
           style={{
             display: 'flex',
             gap: '0.5rem',
             marginBottom: '1.75rem',
             background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
             borderRadius: '9999px',
             padding: '0.3rem',
             width: 'fit-content',
-            boxShadow: 'var(--shadow-soft)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.02)',
           }}
         >
           {([
@@ -265,22 +264,21 @@ function CreatePageInner() {
         >
           {/* ── Left: Editor ── */}
           <div
-            className="animate-fade-in"
+            className="max-md:pb-[80px]"
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.25rem',
-              animationDelay: '0.05s',
+              gap: '0.75rem',
             }}
           >
             {/* Text input */}
             <section
+              className="animate-fade-in"
               style={{
                 background: 'var(--color-surface)',
                 borderRadius: '1.25rem',
                 padding: '1.4rem',
-                border: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-card)',
+                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.03)',
               }}
             >
               <label
@@ -372,14 +370,14 @@ function CreatePageInner() {
               )}
             </section>
 
-            {/* Font selector */}
+            {/* Font style */}
             <section
+              className="animate-fade-in"
               style={{
                 background: 'var(--color-surface)',
                 borderRadius: '1.25rem',
                 padding: '1.4rem',
-                border: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-card)',
+                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.03)',
               }}
             >
               <p className="section-label" style={{ marginBottom: '0.75rem' }}>폰트 스타일</p>
@@ -429,14 +427,14 @@ function CreatePageInner() {
               </div>
             </section>
 
-            {/* Background selector */}
+            {/* Background style */}
             <section
+              className="animate-fade-in"
               style={{
                 background: 'var(--color-surface)',
                 borderRadius: '1.25rem',
                 padding: '1.4rem',
-                border: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-card)',
+                boxShadow: '0 2px 16px rgba(0, 0, 0, 0.03)',
               }}
             >
               {/* Tab switcher */}
@@ -607,38 +605,43 @@ function CreatePageInner() {
             </section>
 
             {/* Save button */}
-            <button
-              id="save-card-btn"
-              className="btn-primary"
-              onClick={handleSave}
-              disabled={saving}
-              style={{
-                width: '100%',
-                padding: '0.85rem',
-                fontSize: '0.95rem',
-                borderRadius: '1rem',
-                opacity: saving ? 0.75 : 1,
-              }}
-            >
-              {saving ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-                  <span
-                    style={{
-                      width: '16px',
-                      height: '16px',
-                      border: '2px solid rgba(255,255,255,0.4)',
-                      borderTopColor: '#fff',
-                      borderRadius: '50%',
-                      display: 'inline-block',
-                      animation: 'spin 0.7s linear infinite',
-                    }}
-                  />
-                  저장 중…
-                </span>
-              ) : (
-                editId ? '수정 완료' : '서랍에 담기 →'
-              )}
-            </button>
+            <div className="mobile-cta-wrapper">
+              <div className="mobile-cta-btn-container">
+                <button
+                  id="save-card-btn"
+                className="btn-primary"
+                onClick={handleSave}
+                disabled={saving}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  fontSize: '0.95rem',
+                  borderRadius: '1rem',
+                  opacity: saving ? 0.75 : 1,
+                  boxShadow: 'var(--shadow-card)',
+                }}
+              >
+                {saving ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                    <span
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        border: '2px solid rgba(255,255,255,0.4)',
+                        borderTopColor: '#fff',
+                        borderRadius: '50%',
+                        display: 'inline-block',
+                        animation: 'spin 0.7s linear infinite',
+                      }}
+                    />
+                    저장 중…
+                  </span>
+                ) : (
+                  editId ? '수정 완료' : '서랍에 담기'
+                )}
+              </button>
+              </div>
+            </div>
           </div>
 
           {/* ── Right: Live preview ── */}

@@ -55,19 +55,20 @@ export default function Navigation() {
           backdropFilter: showBackground ? 'blur(12px)' : 'none',
           WebkitBackdropFilter: showBackground ? 'blur(12px)' : 'none',
           transition: 'background 0.2s, backdrop-filter 0.2s',
+          marginBottom: '-1px', /* Sub-pixel rendering gap fix */
+          transform: 'translateZ(0)', /* iOS backdrop-filter edge bleed fix */
         }}
       >
         <div
           style={{
             width: '100%',
-            padding: '0 2rem',
             height: '60px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             boxSizing: 'border-box',
           }}
-          className="max-md:px-5"
+          className="gnb-inner"
         >
           {/* 로고 — 모바일에서 /create, /archive는 숨기고 데스크탑에서는 항상 표시 */}
           <button
@@ -139,7 +140,7 @@ export default function Navigation() {
           height: '70px',
           background: 'rgba(255, 255, 255, 0.85)',
           backdropFilter: 'blur(12px)',
-          borderTop: '1px solid var(--color-border)',
+          borderTop: '1px solid rgba(0, 0, 0, 0.04)',
           paddingBottom: 'env(safe-area-inset-bottom)', // 아이폰 하단 홈바 대응
         }}
       >

@@ -60,9 +60,8 @@ export default function DailyQuoteCard({ quote }: DailyQuoteCardProps) {
       className="animate-fade-in"
       style={{
         background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
         borderRadius: '1.5rem',
-        boxShadow: '0 2px 16px rgba(103, 94, 207,0.10)',
+        boxShadow: '0 2px 16px rgba(0, 0, 0, 0.08)',
         padding: '0.9rem 1.25rem 0.8rem',
         display: 'flex',
         flexDirection: 'column',

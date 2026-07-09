@@ -40,7 +40,7 @@ export default function ArchivePage() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
+      <div className="mobile-reduce-top" style={{ maxWidth: '760px', margin: '0 auto', padding: '2rem 1.25rem 7rem' }}>
         {/* Header — PC에서만 표시, 모바일은 GNB에 타이틀이 있으므로 숨김 */}
         <div className="animate-fade-in max-md:hidden" style={{ marginBottom: '1.5rem' }}>
           <div
@@ -78,17 +78,16 @@ export default function ArchivePage() {
         {/* ── Tab filter ── */}
         {loaded && totalCount > 0 && (
           <div
-            className="animate-fade-in"
+            className="animate-fade-in mb-7 mobile-mb-20"
             style={{
               display: 'flex',
               gap: '0.4rem',
               marginBottom: '1.75rem',
               background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
               borderRadius: '9999px',
               padding: '0.3rem',
               width: 'fit-content',
-              boxShadow: 'var(--shadow-soft)',
+              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.02)',
             }}
           >
             {TAB_CONFIG.map((tab) => {
@@ -151,7 +150,6 @@ export default function ArchivePage() {
               padding: '5rem 1.5rem',
               background: 'var(--color-surface)',
               borderRadius: '1.5rem',
-              border: '1px solid var(--color-border)',
             }}
           >
             {/* 빈 상태 아이콘 제거됨 */}
@@ -192,7 +190,6 @@ export default function ArchivePage() {
               padding: '3rem 1.5rem',
               background: 'var(--color-surface)',
               borderRadius: '1.25rem',
-              border: '1px solid var(--color-border)',
             }}
           >
             <p style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: 'var(--color-primary)' }}>

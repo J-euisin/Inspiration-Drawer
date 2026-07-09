@@ -36,9 +36,7 @@ export default function CardPreview({
     borderRadius: size === 'full' ? '1.25rem' : '0.875rem',
     overflow: 'hidden',
     background: backgroundColor,
-    boxShadow: size === 'full'
-      ? '0 8px 40px rgba(103, 94, 207,0.18)'
-      : '0 2px 14px rgba(103, 94, 207,0.13)',
+    boxShadow: 'none',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',

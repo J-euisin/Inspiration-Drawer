@@ -247,6 +247,57 @@ body {
   border: none;
 }
 
+/* GNB inner container — responsive padding */
+.gnb-inner {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+@media (max-width: 767px) {
+  .gnb-inner {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+/* 모바일 상단 여백 축소 (/create, /archive) */
+@media (max-width: 767px) {
+  .mobile-reduce-top {
+    padding-top: 0.25rem !important;
+  }
+  .mobile-mb-20 {
+    margin-bottom: 20px !important;
+  }
+  
+  .mobile-cta-wrapper {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 2.5rem 1.25rem 1.5rem 1.25rem;
+    pointer-events: none;
+  }
+
+  .mobile-cta-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(250, 248, 245, 1) 40%, rgba(250, 248, 245, 0) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+    mask-image: linear-gradient(to top, black 50%, transparent 100%);
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .mobile-cta-btn-container {
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+  }
+}
+
 /* Desktop GNB Link */
 .gnb-desktop-link {
   display: flex;

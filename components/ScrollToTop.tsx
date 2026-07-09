@@ -28,7 +28,7 @@ export default function ScrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (!visible) return null;
+  if (!visible || isMobile) return null;
 
   // 모바일 하단 탭(70px + safe-area)과 안 겹치도록 90px 여백
   const bottom = isMobile ? 'calc(env(safe-area-inset-bottom) + 90px)' : '24px';
