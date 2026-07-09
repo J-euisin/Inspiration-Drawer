@@ -332,10 +332,10 @@ export default function ArchivePage() {
                   <div
                     key={card.id}
                     style={{
-                      flex: '0 0 84%',
-                      width: '84%', // Larger card width
-                      marginLeft: index === sorted.length - 1 ? '8vw' : '-1.5vw', // Reversal: last item is on the physical left
-                      marginRight: index === 0 ? '8vw' : '-1.5vw', // Reversal: first item is on the physical right
+                      flex: '0 0 68%',
+                      width: '68%', // 80% of original 84%
+                      marginLeft: index === sorted.length - 1 ? '16vw' : '1.75vw', // Reversal: last item is on the physical left
+                      marginRight: index === 0 ? '16vw' : '1.75vw', // Reversal: first item is on the physical right
                       scrollSnapAlign: 'center',
                       scrollSnapStop: 'always', // Force snap per card
                       transform: isActive ? 'scale(1)' : 'scale(0.88)',

@@ -11,7 +11,7 @@ interface CardPreviewProps {
   source?: string;
   author?: string;
   /** 'create' view (larger) vs 'archive' view (compact) */
-  size?: 'full' | 'compact';
+  size?: 'full' | 'compact' | 'carousel';
   date?: string;
   lineClamp?: number;
 }
@@ -35,14 +35,14 @@ export default function CardPreview({
     position: 'relative',
     width: '100%',
     aspectRatio: `1 / ${CARD_ASPECT}`,
-    borderRadius: size === 'full' ? '1.25rem' : '0.875rem',
+    borderRadius: size === 'compact' ? '0.875rem' : size === 'carousel' ? '1.1rem' : '1.25rem',
     overflow: 'hidden',
     background: backgroundColor,
     boxShadow: 'none',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: size === 'full' ? '2rem' : '1.1rem',
+    padding: size === 'full' ? '2rem' : size === 'carousel' ? '1.6rem' : '1.1rem',
     transition: 'box-shadow 0.25s',
   };
 
@@ -93,6 +93,12 @@ export default function CardPreview({
         : text.length > 30
         ? '1.45rem'
         : '1.7rem'
+      : size === 'carousel'
+      ? text.length > 60
+        ? '0.72rem'
+        : text.length > 30
+        ? '0.89rem'
+        : '1.06rem'
       : text.length > 60
       ? '0.72rem'
       : text.length > 30
@@ -107,15 +113,33 @@ export default function CardPreview({
         {/* Decorative quote mark */}
         <div
           style={{
-            fontSize: size === 'full' ? '3.5rem' : '1.8rem',
+            fontSize: size === 'full' ? '3.5rem' : size === 'carousel' ? '2.8rem' : '1.8rem',
             lineHeight: 1,
             color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(103, 94, 207,0.18)',
             fontFamily: "'Gowun Batang', serif",
-            marginBottom: size === 'full' ? '0.5rem' : '0.2rem',
+            marginBottom: size === 'full' ? '0.5rem' : size === 'carousel' ? '0.4rem' : '0.2rem',
           }}
         >
           "
         </div>
+
+        {/* Top right date (Full / Carousel size only) */}
+        {(size === 'full' || size === 'carousel') && date && (
+          <div
+            style={{
+              position: 'absolute',
+              top: size === 'full' ? '1.5rem' : '1.2rem',
+              right: size === 'full' ? '1.5rem' : '1.2rem',
+              fontSize: size === 'full' ? '0.75rem' : '0.6rem',
+              fontWeight: 700,
+              color: mutedColor,
+              fontFamily: "'Inter', sans-serif",
+              letterSpacing: '0.02em',
+            }}
+          >
+            {date}
+          </div>
+        )}
 
         {/* Main text */}
         <p
@@ -153,7 +177,7 @@ export default function CardPreview({
         {!lineClamp && (source || author) && (
           <div
             style={{
-              marginTop: size === 'full' ? '1.25rem' : '0.5rem',
+              marginTop: size === 'full' ? '1.25rem' : size === 'carousel' ? '1rem' : '0.5rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.1rem',
@@ -163,7 +187,7 @@ export default function CardPreview({
               <span
                 style={{
                   color: mutedColor,
-                  fontSize: size === 'full' ? '0.8rem' : '0.6rem',
+                  fontSize: size === 'full' || size === 'carousel' ? '0.75rem' : '0.55rem',
                   fontWeight: 600,
                   letterSpacing: '0.04em',
                 }}
@@ -175,7 +199,7 @@ export default function CardPreview({
               <span
                 style={{
                   color: mutedColor,
-                  fontSize: size === 'full' ? '0.72rem' : '0.55rem',
+                  fontSize: size === 'full' || size === 'carousel' ? '0.72rem' : '0.55rem',
                   letterSpacing: '0.03em',
                 }}
               >
