@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Card } from '@/lib/types';
 import { getCards, groupCardsByDate } from '@/lib/storage';
 import CardItem from '@/components/CardItem';
+import ArchiveViewOptionsModal, { SortOrder, ViewType } from '@/components/ArchiveViewOptionsModal';
 
 type TabFilter = 'all' | 'quote' | 'thought';
 
@@ -18,12 +19,69 @@ export default function ArchivePage() {
   const [allCards, setAllCards] = useState<Card[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<TabFilter>('all');
+  const [isViewOptionsOpen, setIsViewOptionsOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [viewType, setViewType] = useState<ViewType>('2');
+
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const cards = getCards();
     setAllCards(cards);
+    
+    try {
+      const saved = localStorage.getItem('archiveViewOptions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.sortOrder) setSortOrder(parsed.sortOrder);
+        if (parsed.viewType) setViewType(parsed.viewType);
+      }
+    } catch (e) {
+      // ignore
+    }
+    
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    
     setLoaded(true);
+    return () => window.removeEventListener('resize', checkDesktop);
   }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      localStorage.setItem('archiveViewOptions', JSON.stringify({ sortOrder, viewType }));
+    }
+  }, [sortOrder, viewType, loaded]);
+
+  useEffect(() => {
+    setActiveCarouselIndex(0);
+  }, [activeTab, sortOrder, viewType]);
+
+  const handleCarouselScroll = () => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+    
+    let closestIndex = 0;
+    let minDiff = Infinity;
+
+    Array.from(container.children).forEach((child, index) => {
+      const childRect = child.getBoundingClientRect();
+      const childCenter = childRect.left + childRect.width / 2;
+      const diff = Math.abs(containerCenter - childCenter);
+      
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIndex = index;
+      }
+    });
+
+    setActiveCarouselIndex(closestIndex);
+  };
 
   function handleDeleted(id: string) {
     setAllCards((prev) => prev.filter((c) => c.id !== id));
@@ -34,7 +92,8 @@ export default function ArchivePage() {
     ? allCards
     : allCards.filter((c) => (c.type ?? 'quote') === activeTab);
 
-  const groups = groupCardsByDate(filtered);
+  const sorted = sortOrder === 'asc' ? [...filtered].reverse() : filtered;
+  const groups = groupCardsByDate(sorted);
   const totalCount = allCards.length;
   const filteredCount = filtered.length;
 
@@ -75,21 +134,57 @@ export default function ArchivePage() {
           </div>
         </div>
 
-        {/* ── Tab filter ── */}
+        {/* ── Menu & Tab filter ── */}
         {loaded && totalCount > 0 && (
           <div
             className="animate-fade-in mb-7 mobile-mb-20"
             style={{
               display: 'flex',
-              gap: '0.4rem',
+              alignItems: 'center',
+              gap: '0.75rem',
               marginBottom: '1.75rem',
-              background: 'var(--color-surface)',
-              borderRadius: '9999px',
-              padding: '0.3rem',
-              width: 'fit-content',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.02)',
             }}
           >
+            {/* Hamburger Menu (Mobile Only) */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsViewOptionsOpen(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '42px',
+                  height: '42px',
+                  background: 'var(--color-surface)',
+                  borderRadius: '50%',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-text)',
+                  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.02)',
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* 필터 탭 컨테이너 */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.4rem',
+                background: 'var(--color-surface)',
+                borderRadius: '9999px',
+                padding: '0.3rem',
+                width: 'fit-content',
+                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.02)',
+              }}
+            >
+
             {TAB_CONFIG.map((tab) => {
               const count = tab.value === 'all'
                 ? allCards.length
@@ -138,6 +233,7 @@ export default function ArchivePage() {
                 </button>
               );
             })}
+            </div>
           </div>
         )}
 
@@ -203,9 +299,114 @@ export default function ArchivePage() {
           </div>
         )}
 
-        {/* Date-grouped gallery */}
+        {/* Mobile View Type 1: Carousel (Only visible on mobile when viewType === '1') */}
+        {loaded && sorted.length > 0 && viewType === '1' && (
+          <div className="md:hidden">
+            <div className="animate-fade-in" style={{
+              paddingBottom: '1rem',
+              paddingTop: '2vh',
+              height: 'calc(100vh - 200px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}>
+            <div
+              key={`${sortOrder}-${activeTab}`}
+              ref={carouselRef}
+              onScroll={handleCarouselScroll}
+              className="carousel-container"
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                scrollSnapType: 'x mandatory',
+                margin: '0 -1.25rem', // Bleed full width
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                alignItems: 'center', // Fix vertical stretching
+                direction: 'rtl', // Reverse visual order
+              }}
+            >
+              {sorted.map((card, index) => {
+                const isActive = index === activeCarouselIndex;
+                return (
+                  <div
+                    key={card.id}
+                    style={{
+                      flex: '0 0 84%',
+                      width: '84%', // Larger card width
+                      marginLeft: index === sorted.length - 1 ? '8vw' : '-1.5vw', // Reversal: last item is on the physical left
+                      marginRight: index === 0 ? '8vw' : '-1.5vw', // Reversal: first item is on the physical right
+                      scrollSnapAlign: 'center',
+                      scrollSnapStop: 'always', // Force snap per card
+                      transform: isActive ? 'scale(1)' : 'scale(0.88)',
+                      opacity: isActive ? 1 : 0.55,
+                      transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease',
+                      direction: 'ltr', // Restore text direction inside the card
+                    }}
+                  >
+                    <CardItem card={card} onDeleted={handleDeleted} viewType={viewType} />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination indicator */}
+            {sorted.length > 0 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '1.25rem',
+              }}>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#F0F0F0',
+                  padding: '0.4rem 0.95rem',
+                  borderRadius: '9999px',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: '0.85rem',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '1.25rem',
+                    textAlign: 'right',
+                    color: '#675ECF', 
+                    fontWeight: 700,
+                  }}>
+                    {activeCarouselIndex + 1}
+                  </span>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '0.5rem',
+                    textAlign: 'center',
+                    color: '#9CA3AF',
+                    fontWeight: 500,
+                    margin: '0 0.15rem',
+                  }}>
+                    /
+                  </span>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '1.25rem',
+                    textAlign: 'left',
+                    color: '#9CA3AF',
+                    fontWeight: 500,
+                  }}>
+                    {sorted.length}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+          </div>
+        )}
+
+        {/* Date-grouped gallery (Visible on PC always, and on mobile if viewType !== '1') */}
         {loaded && groups.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+          <div className={viewType === '1' ? 'max-md:hidden' : ''}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             {groups.map((group, gi) => (
               <section
                 key={group.date}
@@ -256,21 +457,22 @@ export default function ArchivePage() {
 
                 {/* Card grid */}
                 <div
-                  className="stagger-children"
+                  className="stagger-children archive-grid"
+                  data-view-type={isDesktop ? undefined : viewType}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
                     gap: '0.85rem',
                   }}
                 >
                   {group.cards.map((card) => (
                     <div key={card.id} className="animate-fade-in">
-                      <CardItem card={card} onDeleted={handleDeleted} />
+                      <CardItem card={card} onDeleted={handleDeleted} viewType={isDesktop ? undefined : viewType} />
                     </div>
                   ))}
                 </div>
               </section>
             ))}
+            </div>
           </div>
         )}
 
@@ -299,6 +501,16 @@ export default function ArchivePage() {
           </div>
         )}
       </div>
+
+      {/* View Options Modal */}
+      <ArchiveViewOptionsModal
+        isOpen={isViewOptionsOpen}
+        onClose={() => setIsViewOptionsOpen(false)}
+        sortOrder={sortOrder}
+        viewType={viewType}
+        onSortOrderChange={setSortOrder}
+        onViewTypeChange={setViewType}
+      />
 
       <style>{`
         @keyframes shimmer {

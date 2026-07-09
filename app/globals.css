@@ -262,7 +262,7 @@ body {
 /* 모바일 상단 여백 축소 (/create, /archive) */
 @media (max-width: 767px) {
   .mobile-reduce-top {
-    padding-top: 0.25rem !important;
+    padding-top: 0.45rem !important;
   }
   .mobile-mb-20 {
     margin-bottom: 20px !important;
@@ -368,4 +368,32 @@ body {
   justify-content: center;
   padding: 1.5rem;
   animation: fadeIn 0.25s ease both;
+}
+
+.archive-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* Archive View Types (Mobile Only) */
+@media (max-width: 768px) {
+  .archive-grid[data-view-type="2"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .archive-grid[data-view-type="3"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  
+  /* 3장씩 뷰타입에서만 텍스트 3줄 말줄임 처리 */
+  .archive-grid[data-view-type="3"] .card-preview-inner-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Hide scrollbar for carousel */
+.carousel-container::-webkit-scrollbar {
+  display: none;
 }

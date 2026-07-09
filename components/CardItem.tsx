@@ -10,9 +10,10 @@ import CardPreview from './CardPreview';
 interface CardItemProps {
   card: Card;
   onDeleted: (id: string) => void;
+  viewType?: string;
 }
 
-export default function CardItem({ card, onDeleted }: CardItemProps) {
+export default function CardItem({ card, onDeleted, viewType }: CardItemProps) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -167,7 +168,8 @@ export default function CardItem({ card, onDeleted }: CardItemProps) {
           backgroundImage={card.backgroundImage}
           source={card.source}
           author={card.author}
-          size="compact"
+          size={viewType === '1' ? 'full' : 'compact'}
+          lineClamp={viewType === '3' ? 4 : undefined}
         />
       </div>
 

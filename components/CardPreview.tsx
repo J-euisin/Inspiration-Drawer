@@ -13,6 +13,7 @@ interface CardPreviewProps {
   /** 'create' view (larger) vs 'archive' view (compact) */
   size?: 'full' | 'compact';
   date?: string;
+  lineClamp?: number;
 }
 
 const CARD_ASPECT = 1.414; // A4-ish portrait ratio (width:height = 1:1.414)
@@ -26,6 +27,7 @@ export default function CardPreview({
   author,
   size = 'full',
   date,
+  lineClamp,
 }: CardPreviewProps) {
   const fontClass = FONT_CLASSNAMES[fontStyle];
 
@@ -83,8 +85,9 @@ export default function CardPreview({
   const textColor = isDark ? 'rgba(255,255,255,0.93)' : 'rgba(44,49,74,0.90)';
   const mutedColor = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(44,49,74,0.45)';
 
-  const textSize =
-    size === 'full'
+  const textSize = lineClamp
+    ? '0.75rem' // Fixed smaller size for 3-column view
+    : size === 'full'
       ? text.length > 60
         ? '1.2rem'
         : text.length > 30
@@ -123,10 +126,20 @@ export default function CardPreview({
             lineHeight: 1.75,
             letterSpacing: '-0.01em',
             flexGrow: 1,
-            display: 'flex',
-            alignItems: 'center',
             whiteSpace: 'pre-wrap',
             wordBreak: 'keep-all',
+            ...(lineClamp
+              ? {
+                  display: '-webkit-box',
+                  WebkitLineClamp: lineClamp,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }
+              : {
+                  display: 'flex',
+                  alignItems: 'center',
+                }),
           }}
         >
           {text || (
@@ -137,7 +150,7 @@ export default function CardPreview({
         </p>
 
         {/* Attribution */}
-        {(source || author) && (
+        {!lineClamp && (source || author) && (
           <div
             style={{
               marginTop: size === 'full' ? '1.25rem' : '0.5rem',
