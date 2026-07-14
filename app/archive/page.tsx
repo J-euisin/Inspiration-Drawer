@@ -255,19 +255,33 @@ export default function ArchivePage() {
           <div
             className="animate-scale-in"
             style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               textAlign: 'center',
-              padding: '5rem 1.5rem',
+              padding: '2.25rem 1.5rem',
               background: 'var(--color-surface)',
               borderRadius: '1.5rem',
             }}
           >
-            {/* 빈 상태 아이콘 제거됨 */}
+            <img
+              src="/empty-drawer.png?v=2"
+              alt="비어있는 서랍"
+              style={{
+                width: 'clamp(130px, 25vw, 240px)',
+                height: 'clamp(130px, 25vw, 240px)',
+                objectFit: 'contain',
+                marginBottom: '0.875rem',
+              }}
+            />
             <h2
               style={{
-                fontFamily: "'Gowun Batang', serif",
-                fontSize: '1.2rem',
+                fontFamily: "'Noto Sans KR', sans-serif",
+                fontWeight: 400,
+                fontSize: '1.15rem',
                 color: 'var(--color-text)',
-                marginBottom: '0.5rem',
+                marginBottom: '0.8rem',
+                letterSpacing: '-0.02em',
               }}
             >
               서랍이 비어 있어요
@@ -276,7 +290,7 @@ export default function ArchivePage() {
               style={{
                 color: 'var(--color-text-muted)',
                 fontSize: '0.875rem',
-                marginBottom: '1.5rem',
+                marginBottom: '1.75rem',
                 lineHeight: 1.7,
               }}
             >
@@ -285,7 +299,7 @@ export default function ArchivePage() {
               나만의 카드를 직접 만들어보세요.
             </p>
             <Link href="/create">
-              <button className="btn-primary">✎ 카드 만들기</button>
+              <button className="btn-primary">카드 만들기</button>
             </Link>
           </div>
         )}
@@ -499,7 +513,7 @@ export default function ArchivePage() {
                   }}
                 >
                   {group.cards.map((card) => (
-                    <div key={card.id} className="animate-fade-in">
+                    <div key={card.id} className="animate-fade-in" style={{ minWidth: 0 }}>
                       <CardItem card={card} onDeleted={handleDeleted} viewType={isDesktop ? undefined : viewType} />
                     </div>
                   ))}

@@ -34,6 +34,7 @@ export default function CardPreview({
   const wrapperStyle: CSSProperties = {
     position: 'relative',
     width: '100%',
+    minWidth: 0, // Flex/Grid 컨테이너 내에서 컨텐츠 길이만큼 폭이 늘어나는 것 방지
     aspectRatio: `1 / ${CARD_ASPECT}`,
     borderRadius: size === 'compact' ? '0.875rem' : size === 'carousel' ? '1.1rem' : '1.25rem',
     overflow: 'hidden',
@@ -179,7 +180,7 @@ export default function CardPreview({
               lineHeight: 1.75,
               letterSpacing: '-0.01em',
               whiteSpace: 'pre-wrap',
-              wordBreak: 'keep-all',
+              wordBreak: 'break-all',
               overflowWrap: 'break-word',
               width: '100%',
               // 카드 높이를 넘어가면 무조건 말줄임표(...) 처리
