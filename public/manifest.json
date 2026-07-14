@@ -1,0 +1,21 @@
+{
+  "name": "영감의 서랍",
+  "short_name": "영감의 서랍",
+  "description": "떠오르는 단상과 감명 깊은 문장을 나만의 카드로 소장하는 영감 아카이빙 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0f0f1a",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
