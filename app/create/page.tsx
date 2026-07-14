@@ -82,13 +82,16 @@ function CreatePageInner() {
 
 
   // 단상 모드일 때 배경 기본값 약간 다르게
+  // ※ 수정 모드(editId 있음)에서는 mode 변경이 프리필 과정에서 발생하므로,
+  //   기본값 덮어쓰기를 건너뜀 — 배경색은 프리필 Effect에서 직접 세팅함
   useEffect(() => {
+    if (editId) return;           // 수정 모드: 기본값 덮어쓰기 스킵
     if (mode === 'thought') {
       setBgColor('#F5F0FF');
     } else {
       setBgColor('#EEE8F8');
     }
-  }, [mode]);
+  }, [mode, editId]);
 
   // 수정 모드: editId가 있을 경우 기존 카드 정보 불러오기
   useEffect(() => {
@@ -102,8 +105,15 @@ function CreatePageInner() {
         setAuthor(card.author || '');
         setFontStyle(card.fontStyle);
         setBgColor(card.backgroundColor);
-        setBgImage(card.backgroundImage);
-        // customColor가 배경색 배열에 없는 경우 customColor로 렌더링
+        // 배경 이미지가 있는 카드: 이미지 탭으로 자동 전환
+        if (card.backgroundImage) {
+          setBgImage(card.backgroundImage);
+          setTab('image');
+        } else {
+          setBgImage(null);
+          setTab('color');
+        }
+        // customColor가 프리셋 배열에 없는 경우 직접 입력 필드에도 반영
         if (!BG_COLORS.find(c => c.hex === card.backgroundColor)) {
           setCustomColor(card.backgroundColor);
         }

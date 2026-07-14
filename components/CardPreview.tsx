@@ -90,22 +90,36 @@ export default function CardPreview({
   const textSize = lineClamp
     ? '0.68rem' // 3장씩: 이전보다 작게 조정
     : size === 'full'
-      ? text.length > 60
-        ? '1.2rem'
-        : text.length > 30
-        ? '1.45rem'
-        : '1.7rem'
+      ? text.length > 150 ? '0.95rem'
+      : text.length > 100 ? '1.10rem'
+      : text.length > 60  ? '1.25rem'
+      : text.length > 30  ? '1.45rem'
+      : '1.7rem'
       : size === 'carousel'
-      ? text.length > 60
-        ? '0.72rem'
-        : text.length > 30
-        ? '0.89rem'
-        : '1.06rem'
-      : text.length > 60
-      ? '0.72rem'
-      : text.length > 30
-      ? '0.82rem'
-      : '0.95rem';
+      ? text.length > 150 ? '0.60rem'
+      : text.length > 100 ? '0.68rem'
+      : text.length > 60  ? '0.78rem'
+      : text.length > 30  ? '0.92rem'
+      : '1.06rem'
+      : // size === 'compact' (PC 그리드, 모바일 2장씩)
+        text.length > 150 ? '0.60rem' // 하한선 (최소 크기)
+      : text.length > 100 ? '0.66rem'
+      : text.length > 60  ? '0.74rem'
+      : text.length > 30  ? '0.84rem'
+      : '0.95rem'; // 기본 크기
+
+  // 폰트 크기 및 카드 사이즈(가용 높이)에 비례한 최대 줄 수(line clamp) 동적 계산
+  let computedLineClamp = lineClamp;
+  if (!computedLineClamp) {
+    if (size === 'compact') {
+      computedLineClamp = text.length > 150 ? 8 : text.length > 100 ? 7 : text.length > 60 ? 6 : text.length > 30 ? 5 : 5;
+    } else if (size === 'full') {
+      computedLineClamp = text.length > 150 ? 10 : text.length > 100 ? 8 : text.length > 60 ? 7 : text.length > 30 ? 6 : 5;
+    } else {
+      // carousel
+      computedLineClamp = text.length > 150 ? 11 : text.length > 100 ? 10 : text.length > 60 ? 8 : text.length > 30 ? 7 : 6;
+    }
+  }
 
   return (
     <div style={wrapperStyle}>
@@ -154,7 +168,7 @@ export default function CardPreview({
             // 3장씩(lineClamp): 텍스트를 상단부터 표시
             // 1·2장씩: 중간 영역 내 세로 중앙
             alignItems: lineClamp ? 'flex-start' : 'center',
-            overflow: 'hidden',
+            overflow: 'hidden', // 카드 높이 고정을 위해 무조건 hidden 적용
           }}
         >
           <p
@@ -166,18 +180,14 @@ export default function CardPreview({
               letterSpacing: '-0.01em',
               whiteSpace: 'pre-wrap',
               wordBreak: 'keep-all',
+              overflowWrap: 'break-word',
               width: '100%',
-              ...(lineClamp
-                ? {
-                    display: '-webkit-box',
-                    WebkitLineClamp: lineClamp,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    // 실기기 이중 방어: font-size(0.68rem) × line-height(1.75) × 4줄
-                    maxHeight: `${0.68 * 1.75 * lineClamp}rem`,
-                  }
-                : {}),
+              // 카드 높이를 넘어가면 무조건 말줄임표(...) 처리
+              display: '-webkit-box',
+              WebkitLineClamp: computedLineClamp,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             {text || (

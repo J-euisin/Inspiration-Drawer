@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import mixpanel from 'mixpanel-browser';
 import { getDailyQuote } from '@/lib/quotes';
 import DailyQuoteCard from '@/components/DailyQuoteCard';
@@ -35,17 +35,47 @@ export default function HomePage() {
   const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const listRef     = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const isComposing = useRef(false);
+  const listRef      = useRef<HTMLDivElement>(null);
+  const textareaRef  = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isComposing  = useRef(false);
+
+  const [baseRadius, setBaseRadius] = useState<number | undefined>(undefined);
+
+  const measureBaseRadius = useCallback(() => {
+    if (!containerRef.current || !textareaRef.current) return;
+    const c = containerRef.current;
+    const ta = textareaRef.current;
+
+    const origValue = ta.value;
+    const origHeight = ta.style.height;
+    const origTransition = ta.style.transition;
+
+    // 1줄 상태로 만들기 위해 임시로 value를 비움
+    ta.style.transition = 'none';
+    ta.value = '';
+    ta.style.height = 'auto';
+
+    // 그 상태에서의 컨테이너 실제 높이 측정 후 ÷ 2
+    const radius = c.offsetHeight / 2;
+    setBaseRadius(radius);
+
+    // 원래 상태로 복원
+    ta.value = origValue;
+    ta.style.height = origHeight;
+    ta.style.transition = origTransition;
+  }, []);
 
   useEffect(() => {
     setThoughts(getThoughts());
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      measureBaseRadius();
+    };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [measureBaseRadius]);
 
   // 텍스트 입력 + 부드러운 높이 전환
   // height: auto ↔ px 점프 없이, 항상 px → px 로 CSS transition 보간
@@ -61,12 +91,13 @@ export default function HomePage() {
     el.style.height = currentHeight + 'px'; // 즉시 원래 px로 복원 (페인트 전)
 
     // 2. 다음 프레임에서 타겟 px 적용 → CSS transition 활성화되어 부드럽게 보간
+    const nextIsMultiline = targetHeight > 40;
     requestAnimationFrame(() => {
       el.style.transition = '';          // transition 복원
       el.style.height = targetHeight + 'px';
     });
 
-    setIsMultiline(targetHeight > 40);
+    setIsMultiline(nextIsMultiline);
   }
 
   function handleAdd() {
@@ -192,18 +223,21 @@ export default function HomePage() {
           style={{ marginBottom: '1.5rem', animationDelay: '0.1s' }}
         >
           <div
+            ref={containerRef}
             style={{
               display: 'flex',
               alignItems: isMultiline ? 'flex-end' : 'center',
               background: 'var(--color-surface)',
               border: 'none',
-              borderRadius: isMultiline ? '1.75rem' : '9999px',
+              // 측정한 1줄 기준 radius 고정. 측정 전에는 9999px로 폴백
+              borderRadius: baseRadius ? `${baseRadius}px` : '9999px',
               padding: '0.65rem 0.65rem 0.65rem 1.5rem',
               boxShadow: focused
                 ? '0 4px 20px rgba(0, 0, 0, 0.18)'
                 : '0 2px 10px rgba(0, 0, 0, 0.12)',
               gap: '0.65rem',
-              transition: 'box-shadow 0.2s, border-radius 0.2s ease-out, align-items 0.2s ease-out',
+              // radius는 고정되므로 transition에서 제외
+              transition: 'box-shadow 0.2s',
             }}
           >
             <textarea
