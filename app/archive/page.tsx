@@ -26,6 +26,8 @@ export default function ArchivePage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
+  // 캐러셀 슬롯 실제 너비 (scale 계산용)
+  const [carouselSlotWidth, setCarouselSlotWidth] = useState(0);
 
   useEffect(() => {
     const cards = getCards();
@@ -45,9 +47,20 @@ export default function ArchivePage() {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
     checkDesktop();
     window.addEventListener('resize', checkDesktop);
+
+    // 캐러셀 슬롯 너비 측정 (68vw 기준)
+    const measureSlot = () => {
+      const slotWidth = window.innerWidth * 0.68;
+      setCarouselSlotWidth(slotWidth);
+    };
+    measureSlot();
+    window.addEventListener('resize', measureSlot);
     
     setLoaded(true);
-    return () => window.removeEventListener('resize', checkDesktop);
+    return () => {
+      window.removeEventListener('resize', checkDesktop);
+      window.removeEventListener('resize', measureSlot);
+    };
   }, []);
 
   useEffect(() => {
@@ -328,23 +341,44 @@ export default function ArchivePage() {
             >
               {sorted.map((card, index) => {
                 const isActive = index === activeCarouselIndex;
+                // 팝업과 동일한 size="full" 카드를 고정 너비로 렌더링 후 scale 축소
+                // → 내부 폰트/여백 비율이 팝업과 100% 동일 → 텍스트 잘림 원천 차단
+                const RENDER_WIDTH = 320; // 팝업 기준 너비
+                const scaleRatio = carouselSlotWidth > 0 ? carouselSlotWidth / RENDER_WIDTH : 1;
                 return (
                   <div
                     key={card.id}
                     style={{
                       flex: '0 0 68%',
-                      width: '68%', // 80% of original 84%
-                      marginLeft: index === sorted.length - 1 ? '16vw' : '1.75vw', // Reversal: last item is on the physical left
-                      marginRight: index === 0 ? '16vw' : '1.75vw', // Reversal: first item is on the physical right
+                      width: '68%',
+                      marginLeft: index === sorted.length - 1 ? '16vw' : '1.75vw',
+                      marginRight: index === 0 ? '16vw' : '1.75vw',
                       scrollSnapAlign: 'center',
-                      scrollSnapStop: 'always', // Force snap per card
+                      scrollSnapStop: 'always',
                       transform: isActive ? 'scale(1)' : 'scale(0.88)',
                       opacity: isActive ? 1 : 0.55,
                       transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease',
-                      direction: 'ltr', // Restore text direction inside the card
+                      direction: 'ltr',
+                      // 슬롯 높이: 렌더 높이(320px × 1.414) × scale
+                      height: `${RENDER_WIDTH * 1.414 * scaleRatio}px`,
+                      overflow: 'hidden',
+                      borderRadius: '1.25rem',
+                      position: 'relative',
                     }}
                   >
-                    <CardItem card={card} onDeleted={handleDeleted} viewType={viewType} />
+                    {/* 팝업과 동일한 size="full" 카드를 scale로 축소 */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: `${RENDER_WIDTH}px`,
+                        transformOrigin: 'top left',
+                        transform: `scale(${scaleRatio})`,
+                      }}
+                    >
+                      <CardItem card={card} onDeleted={handleDeleted} viewType={viewType} />
+                    </div>
                   </div>
                 );
               })}

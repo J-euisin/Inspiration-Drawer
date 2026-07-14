@@ -25,6 +25,7 @@ export default function HomePage() {
 
   const [thoughts,   setThoughts]   = useState<Thought[]>([]);
   const [inputText,  setInputText]  = useState('');
+  const [isMultiline, setIsMultiline] = useState(false);
   const [editingId,  setEditingId]  = useState<string | null>(null);
   const [editText,   setEditText]   = useState('');
   const [focused,    setFocused]    = useState(false);
@@ -46,12 +47,26 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 텍스트 입력 + 자동 높이 조절
+  // 텍스트 입력 + 부드러운 높이 전환
+  // height: auto ↔ px 점프 없이, 항상 px → px 로 CSS transition 보간
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInputText(e.target.value);
     const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+
+    // 1. 현재 높이를 px로 고정 (transition 시작점)
+    const currentHeight = el.offsetHeight;
+    el.style.transition = 'none';        // 측정 중 transition 끄기
+    el.style.height = 'auto';            // 자연 높이 측정
+    const targetHeight = Math.min(el.scrollHeight, 128);
+    el.style.height = currentHeight + 'px'; // 즉시 원래 px로 복원 (페인트 전)
+
+    // 2. 다음 프레임에서 타겟 px 적용 → CSS transition 활성화되어 부드럽게 보간
+    requestAnimationFrame(() => {
+      el.style.transition = '';          // transition 복원
+      el.style.height = targetHeight + 'px';
+    });
+
+    setIsMultiline(targetHeight > 40);
   }
 
   function handleAdd() {
@@ -65,6 +80,7 @@ export default function HomePage() {
     saveThought(thought);
     setThoughts(getThoughts());
     setInputText('');
+    setIsMultiline(false);
     // 텍스트에리어 높이 초기화
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setTimeout(() => {
@@ -178,16 +194,16 @@ export default function HomePage() {
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: isMultiline ? 'flex-end' : 'center',
               background: 'var(--color-surface)',
               border: 'none',
-              borderRadius: '9999px',
+              borderRadius: isMultiline ? '1.75rem' : '9999px',
               padding: '0.65rem 0.65rem 0.65rem 1.5rem',
               boxShadow: focused
                 ? '0 4px 20px rgba(0, 0, 0, 0.18)'
                 : '0 2px 10px rgba(0, 0, 0, 0.12)',
               gap: '0.65rem',
-              transition: 'box-shadow 0.2s',
+              transition: 'box-shadow 0.2s, border-radius 0.2s ease-out, align-items 0.2s ease-out',
             }}
           >
             <textarea
@@ -210,6 +226,10 @@ export default function HomePage() {
               onBlur={() => setFocused(false)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
+                  if (isMobile) {
+                    // 모바일에서는 그냥 줄바꿈되도록 둠
+                    return;
+                  }
                   e.preventDefault();
                   if (e.nativeEvent.isComposing || isComposing.current) return;
                   handleAdd();
@@ -234,6 +254,8 @@ export default function HomePage() {
                 maxHeight: '128px',
                 overflowY: 'auto',
                 padding: '0.15rem 0',
+                // PC/모바일 모두: 높이 변화를 부드럽게 전환
+                transition: 'height 0.18s ease-out',
               }}
             />
 
