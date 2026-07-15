@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   icons: {
+    icon: '/icon.png',
     apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
